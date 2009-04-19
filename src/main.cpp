@@ -26,11 +26,13 @@
 #include "disk.h"
 #include "mainwindow.h"
 
+QApplication *app;
+
 int main(int argc, char *argv[])
 {
 	MainWindow *mainwindow;
-	QApplication app(argc, argv);
+	app = new QApplication(argc, argv);
 	mainwindow = new MainWindow;
 	mainwindow->show();
-	return app.exec();
+	return app->exec();
 }

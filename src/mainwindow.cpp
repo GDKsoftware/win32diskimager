@@ -19,12 +19,15 @@
  **********************************************************************/
 
 #include <QtGui>
+#include <QCoreApplication>
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <winioctl.h>
 #include "disk.h"
 #include "mainwindow.h"
+
+extern QApplication *app;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -217,6 +220,7 @@ void MainWindow::on_bBurn_clicked()
 				lasti = i;
 			}
 			progressbar->setValue(i);
+			QCoreApplication::processEvents();
 		}
 		delete filelocation;
 		removeLockOnVolume(hVolume);
@@ -239,6 +243,128 @@ void MainWindow::on_bBurn_clicked()
 void MainWindow::on_bRip_clicked()
 {
 	noclose = true;
-	// TODO: Add code to read data from device
+	double mbpersec;
+	unsigned long i, lasti, numsectors;
+	int volumeID = cboxDevice->currentText().at(1).toAscii() - 'A';
+	int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
+	filelocation = new char[5 + leFile->text().length()];
+	sprintf(filelocation, "\\\\.\\%s", leFile->text().toAscii().data());
+	hVolume = getHandleOnVolume(volumeID, GENERIC_READ);
+	if (hVolume == INVALID_HANDLE_VALUE)
+	{
+		delete filelocation;
+		noclose = false;
+		filelocation = NULL;
+		return;
+	}
+	if (!getLockOnVolume(hVolume))
+	{
+		delete filelocation;
+		CloseHandle(hVolume);
+		noclose = false;
+		filelocation = NULL;
+		hVolume = INVALID_HANDLE_VALUE;
+		return;
+	}
+	if (!unmountVolume(hVolume))
+	{
+		delete filelocation;
+		removeLockOnVolume(hVolume);
+		CloseHandle(hVolume);
+		noclose = false;
+		filelocation = NULL;
+		hVolume = INVALID_HANDLE_VALUE;
+		return;
+	}
+	hFile = getHandleOnFile(filelocation, GENERIC_WRITE);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		delete filelocation;
+		removeLockOnVolume(hVolume);
+		CloseHandle(hVolume);
+		noclose = false;
+		filelocation = NULL;
+		hVolume = INVALID_HANDLE_VALUE;
+		return;
+	}
+	hRawDisk = getHandleOnDevice(deviceID, GENERIC_READ);
+	if (hRawDisk == INVALID_HANDLE_VALUE)
+	{
+		delete filelocation;
+		removeLockOnVolume(hVolume);
+		CloseHandle(hFile);
+		CloseHandle(hVolume);
+		noclose = false;
+		filelocation = NULL;
+		hVolume = INVALID_HANDLE_VALUE;
+		hFile = INVALID_HANDLE_VALUE;
+		return;
+	}
+	numsectors = getNumberOfSectors(hRawDisk, &sectorsize);
+	if (numsectors == 0ul)
+		progressbar->setRange(0, 100);
+	else
+		progressbar->setRange(0, (int)numsectors);
+	lasti = 0ul;
+	timer.start();
+	for (i = 0ul; i < numsectors; i += 1024ul)
+	{
+		sectorData = readSectorDataFromHandle(hRawDisk, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
+		if (sectorData == NULL)
+		{
+			delete filelocation;
+			delete sectorData;
+			removeLockOnVolume(hVolume);
+			CloseHandle(hRawDisk);
+			CloseHandle(hFile);
+			CloseHandle(hVolume);
+			noclose = false;
+			filelocation = NULL;
+			sectorData = NULL;
+			hRawDisk = INVALID_HANDLE_VALUE;
+			hFile = INVALID_HANDLE_VALUE;
+			hVolume = INVALID_HANDLE_VALUE;
+			return;
+		}
+		if (!writeSectorDataToHandle(hFile, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
+		{
+			delete filelocation;
+			delete sectorData;
+			removeLockOnVolume(hVolume);
+			CloseHandle(hRawDisk);
+			CloseHandle(hFile);
+			CloseHandle(hVolume);
+			noclose = false;
+			filelocation = NULL;
+			sectorData = NULL;
+			hRawDisk = INVALID_HANDLE_VALUE;
+			hFile = INVALID_HANDLE_VALUE;
+			hVolume = INVALID_HANDLE_VALUE;
+			return;
+		}
+		delete sectorData;
+		sectorData = NULL;
+		if (timer.elapsed() >= 1000)
+		{
+			mbpersec = (((double)sectorsize * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
+			statusbar->showMessage(QString("%1Mb/s").arg(mbpersec));
+			timer.start();
+			lasti = i;
+		}
+		progressbar->setValue(i);
+		QCoreApplication::processEvents();
+	}
+	delete filelocation;
+	removeLockOnVolume(hVolume);
+	CloseHandle(hRawDisk);
+	CloseHandle(hFile);
+	CloseHandle(hVolume);
+	filelocation = NULL;
+	sectorData = NULL;
+	hRawDisk = INVALID_HANDLE_VALUE;
+	hFile = INVALID_HANDLE_VALUE;
+	hVolume = INVALID_HANDLE_VALUE;
+	progressbar->reset();
+  statusbar->showMessage("Done.");
 	noclose = false;
 }
