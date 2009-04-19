@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/images" >
-        <file>images/icon-ubuntu.png</file>
-    </qresource>
+  <qresource prefix="/images" >
+    <file>images/Win32DiskImager.png</file>
+  </qresource>
 </RCC>

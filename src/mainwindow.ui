@@ -14,7 +14,7 @@
   </property>
   <property name="windowIcon" >
    <iconset resource="gui_icons.qrc" >
-    <normaloff>:/images/images/icon-ubuntu.png</normaloff>:/images/images/icon-ubuntu.png</iconset>
+    <normaloff>:/images/images/Win32DiskImager.png</normaloff>:/images/images/Win32DiskImager.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QVBoxLayout" >
