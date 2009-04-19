@@ -1,5 +1,5 @@
 Image Writer for Microsoft Windows
-Release 0.1 - The "Debugged From A Truck Stop" Release
+Release 0.1 (r15) - The "Debugged From A Truck Stop" Release
 ===
 About:
 This utility is used to write Ubuntu img files to SD and USB cards.
