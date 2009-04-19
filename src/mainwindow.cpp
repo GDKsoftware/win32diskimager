@@ -212,6 +212,7 @@ void MainWindow::on_bBurn_clicked()
 			}
 			delete sectorData;
 			sectorData = NULL;
+			QCoreApplication::processEvents();
 			if (timer.elapsed() >= 1000)
 			{
 				mbpersec = (((double)sectorsize * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
