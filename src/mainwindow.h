@@ -44,6 +44,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		HANDLE hVolume;
 		HANDLE hFile;
 		HANDLE hRawDisk;
+		unsigned long sectorsize;
 		char *filelocation;
 		char *sectorData;
 	  QTime timer;

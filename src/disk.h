@@ -44,9 +44,9 @@ bool getLockOnVolume(HANDLE handle);
 bool removeLockOnVolume(HANDLE handle);
 bool unmountVolume(HANDLE handle);
 bool isVolumeUnmounted(HANDLE handle);
-char *readSectorDataFromHandle(HANDLE handle, unsigned long startsector, unsigned long numsectors);
-bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long startsector, unsigned long numsectors);
-unsigned long getNumberOfSectors(HANDLE handle);
-unsigned long getFileSizeInSectors(HANDLE handle);
+char *readSectorDataFromHandle(HANDLE handle, unsigned long startsector, unsigned long numsectors, unsigned long sectorsize);
+bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long startsector, unsigned long numsectors, unsigned long sectorsize);
+unsigned long getNumberOfSectors(HANDLE handle, unsigned long *sectorsize);
+unsigned long getFileSizeInSectors(HANDLE handle, unsigned long sectorsize);
 
 #endif // DISK_H

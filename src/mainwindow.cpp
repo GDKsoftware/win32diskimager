@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	hRawDisk = INVALID_HANDLE_VALUE;
 	filelocation = NULL;
 	sectorData = NULL;
+	sectorsize = 0ul;
 }
 
 MainWindow::~MainWindow()
@@ -112,7 +113,6 @@ void MainWindow::on_bBurn_clicked()
 		int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
 		filelocation = new char[5 + leFile->text().length()];
 		sprintf(filelocation, "\\\\.\\%s", leFile->text().toAscii().data());
-		numsectors = getFileSizeInSectors(filelocation);
 		hVolume = getHandleOnVolume(volumeID, GENERIC_WRITE);
 		if (hVolume == INVALID_HANDLE_VALUE)
 		{
@@ -164,6 +164,8 @@ void MainWindow::on_bBurn_clicked()
 			hFile = INVALID_HANDLE_VALUE;
 			return;
 		}
+		getNumberOfSectors(hRawDisk, &sectorsize);
+		numsectors = getFileSizeInSectors(hFile, sectorsize);
 		if (numsectors == 0ul)
 			progressbar->setRange(0, 100);
 		else
@@ -172,7 +174,7 @@ void MainWindow::on_bBurn_clicked()
 		timer.start();
 		for (i = 0ul; i < numsectors; i += 1024ul)
 		{
-			sectorData = readSectorDataFromHandle(hFile, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i));
+			sectorData = readSectorDataFromHandle(hFile, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
 			if (sectorData == NULL)
 			{
 				delete filelocation;
@@ -189,7 +191,7 @@ void MainWindow::on_bBurn_clicked()
 				hVolume = INVALID_HANDLE_VALUE;
 				return;
 			}
-			if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i)))
+			if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
 			{
 				delete filelocation;
 				delete sectorData;
@@ -209,7 +211,7 @@ void MainWindow::on_bBurn_clicked()
 			sectorData = NULL;
 			if (timer.elapsed() >= 1000)
 			{
-				mbpersec = ((512.0 * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
+				mbpersec = (((double)sectorsize * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
 				statusbar->showMessage(QString("%1Mb/s").arg(mbpersec));
 				timer.start();
 				lasti = i;
