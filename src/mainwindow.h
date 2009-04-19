@@ -38,8 +38,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void closeEvent(QCloseEvent *event);
 	protected slots:
 		void on_tbBrowse_clicked();
-		void on_bBurn_clicked();
-		void on_bRip_clicked();
+		void on_bWrite_clicked();
+		void on_bRead_clicked();
 	private:
 		HANDLE hVolume;
 		HANDLE hFile;

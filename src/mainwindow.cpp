@@ -104,7 +104,7 @@ void MainWindow::on_tbBrowse_clicked()
 		leFile->setText(filelocation);
 }
 
-void MainWindow::on_bBurn_clicked()
+void MainWindow::on_bWrite_clicked()
 {
 		noclose = true;
 	QFileInfo fileinfo(leFile->text());
@@ -241,7 +241,7 @@ void MainWindow::on_bBurn_clicked()
   statusbar->showMessage("Done.");
 }
 
-void MainWindow::on_bRip_clicked()
+void MainWindow::on_bRead_clicked()
 {
 	noclose = true;
 	double mbpersec;

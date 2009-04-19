@@ -119,16 +119,16 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="bRip" >
+       <widget class="QPushButton" name="bRead" >
         <property name="text" >
-         <string>Rip</string>
+         <string>Read</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="bBurn" >
+       <widget class="QPushButton" name="bWrite" >
         <property name="text" >
-         <string>Burn</string>
+         <string>Write</string>
         </property>
        </widget>
       </item>
