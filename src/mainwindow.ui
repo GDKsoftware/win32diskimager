@@ -120,6 +120,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="bRead" >
+        <property name="toolTip" >
+         <string/>
+        </property>
+        <property name="statusTip" >
+         <string>Write data on 'Device' to 'Image File'</string>
+        </property>
         <property name="text" >
          <string>Read</string>
         </property>
@@ -127,6 +133,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="bWrite" >
+        <property name="statusTip" >
+         <string>Write data in 'Image File' to 'Device'</string>
+        </property>
         <property name="text" >
          <string>Write</string>
         </property>
