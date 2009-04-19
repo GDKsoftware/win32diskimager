@@ -34,6 +34,9 @@ Image Writer for Windows is licensed under the General Public
 License v2. The full text of this license is available in 
 GPL-2.
 
+This project uses and includes binaries of the MinGW runtime library,
+which is in the public domain.
+
 This project uses and includes binaries of the Qt library from 
 http://www.qtsoftware.com/, licensed under the Library General Public 
 license. It is available at http://get.qtsoftware.com/qtsdk/qt-sdk-win-opensource-2009.01.1.exe
