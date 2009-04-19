@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>298</width>
+    <width>309</width>
     <height>137</height>
    </rect>
   </property>
@@ -46,6 +46,10 @@
            <property name="text" >
             <string>...</string>
            </property>
+           <property name="icon" >
+            <iconset resource="gui_icons.qrc" >
+             <normaloff>:/images/images/browse.png</normaloff>:/images/images/browse.png</iconset>
+           </property>
           </widget>
          </item>
         </layout>
@@ -70,6 +74,20 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbRefresh" >
+           <property name="statusTip" >
+            <string>Refresh the list of available devices</string>
+           </property>
+           <property name="text" >
+            <string>...</string>
+           </property>
+           <property name="icon" >
+            <iconset resource="gui_icons.qrc" >
+             <normaloff>:/images/images/reload.png</normaloff>:/images/images/reload.png</iconset>
            </property>
           </widget>
          </item>
@@ -141,6 +159,16 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="bExit" >
+        <property name="statusTip" >
+         <string>Exit Win32 Disk Imager</string>
+        </property>
+        <property name="text" >
+         <string>Exit</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -150,5 +178,22 @@
  <resources>
   <include location="gui_icons.qrc" />
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>bExit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>270</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>154</x>
+     <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

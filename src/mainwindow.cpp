@@ -104,11 +104,33 @@ void MainWindow::on_tbBrowse_clicked()
 		leFile->setText(filelocation);
 }
 
+void MainWindow::on_tbRefresh_clicked()
+{
+	unsigned long availabledrives = GetLogicalDrives();
+	int i = 0;
+	while (availabledrives != 0)
+	{
+		if ((availabledrives % 2) != 0)
+		{
+			char drivename[] = "\\\\.\\A:\\";
+			drivename[4] += i;
+			if (DRIVE_REMOVABLE == GetDriveType(drivename))
+			{
+				cboxDevice->addItem(QString("[%1]").arg(drivename[4]), QVariant(getPhysicalDeviceID(i)));
+			}
+		}
+		availabledrives >>= 1;
+		cboxDevice->setCurrentIndex(0);
+		++i;
+	}
+}
+
 void MainWindow::on_bWrite_clicked()
 {
 	noclose = true;
 	bWrite->setEnabled(false);
 	bRead->setEnabled(false);
+	bExit->setEnabled(false);
 	QFileInfo fileinfo(leFile->text());
 	if (fileinfo.exists())
 	{
@@ -126,6 +148,7 @@ void MainWindow::on_bWrite_clicked()
 			filelocation = NULL;
 			bWrite->setEnabled(true);
 			bRead->setEnabled(true);
+			bExit->setEnabled(true);
 			return;
 		}
 		if (!getLockOnVolume(hVolume))
@@ -137,6 +160,7 @@ void MainWindow::on_bWrite_clicked()
 			hVolume = INVALID_HANDLE_VALUE;
 			bWrite->setEnabled(true);
 			bRead->setEnabled(true);
+			bExit->setEnabled(true);
 			return;
 		}
 		if (!unmountVolume(hVolume))
@@ -149,6 +173,7 @@ void MainWindow::on_bWrite_clicked()
 			hVolume = INVALID_HANDLE_VALUE;
 			bWrite->setEnabled(true);
 			bRead->setEnabled(true);
+			bExit->setEnabled(true);
 			return;
 		}
 		hFile = getHandleOnFile(filelocation, GENERIC_READ);
@@ -162,6 +187,7 @@ void MainWindow::on_bWrite_clicked()
 			hVolume = INVALID_HANDLE_VALUE;
 			bWrite->setEnabled(true);
 			bRead->setEnabled(true);
+			bExit->setEnabled(true);
 			return;
 		}
 		hRawDisk = getHandleOnDevice(deviceID, GENERIC_WRITE);
@@ -177,6 +203,7 @@ void MainWindow::on_bWrite_clicked()
 			hFile = INVALID_HANDLE_VALUE;
 			bWrite->setEnabled(true);
 			bRead->setEnabled(true);
+			bExit->setEnabled(true);
 			return;
 		}
 		getNumberOfSectors(hRawDisk, &sectorsize);
@@ -206,6 +233,7 @@ void MainWindow::on_bWrite_clicked()
 				hVolume = INVALID_HANDLE_VALUE;
 				bWrite->setEnabled(true);
 				bRead->setEnabled(true);
+				bExit->setEnabled(true);
 				return;
 			}
 			if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
@@ -224,6 +252,7 @@ void MainWindow::on_bWrite_clicked()
 				hVolume = INVALID_HANDLE_VALUE;
 				bWrite->setEnabled(true);
 				bRead->setEnabled(true);
+				bExit->setEnabled(true);
 				return;
 			}
 			delete sectorData;
@@ -257,12 +286,14 @@ void MainWindow::on_bWrite_clicked()
   statusbar->showMessage("Done.");
 	bWrite->setEnabled(true);
 	bRead->setEnabled(true);
+	bExit->setEnabled(true);
 }
 
 void MainWindow::on_bRead_clicked()
 {
 	bWrite->setEnabled(false);
 	bRead->setEnabled(false);
+	bExit->setEnabled(false);
 	noclose = true;
 	double mbpersec;
 	unsigned long i, lasti, numsectors;
@@ -278,6 +309,7 @@ void MainWindow::on_bRead_clicked()
 		filelocation = NULL;
 		bWrite->setEnabled(true);
 		bRead->setEnabled(true);
+		bExit->setEnabled(true);
 		return;
 	}
 	if (!getLockOnVolume(hVolume))
@@ -289,6 +321,7 @@ void MainWindow::on_bRead_clicked()
 		hVolume = INVALID_HANDLE_VALUE;
 		bWrite->setEnabled(true);
 		bRead->setEnabled(true);
+		bExit->setEnabled(true);
 		return;
 	}
 	if (!unmountVolume(hVolume))
@@ -301,6 +334,7 @@ void MainWindow::on_bRead_clicked()
 		hVolume = INVALID_HANDLE_VALUE;
 		bWrite->setEnabled(true);
 		bRead->setEnabled(true);
+		bExit->setEnabled(true);
 		return;
 	}
 	hFile = getHandleOnFile(filelocation, GENERIC_WRITE);
@@ -314,6 +348,7 @@ void MainWindow::on_bRead_clicked()
 		hVolume = INVALID_HANDLE_VALUE;
 		bWrite->setEnabled(true);
 		bRead->setEnabled(true);
+		bExit->setEnabled(true);
 		return;
 	}
 	hRawDisk = getHandleOnDevice(deviceID, GENERIC_READ);
@@ -329,6 +364,7 @@ void MainWindow::on_bRead_clicked()
 		hFile = INVALID_HANDLE_VALUE;
 		bWrite->setEnabled(true);
 		bRead->setEnabled(true);
+		bExit->setEnabled(true);
 		return;
 	}
 	numsectors = getNumberOfSectors(hRawDisk, &sectorsize);
@@ -357,6 +393,7 @@ void MainWindow::on_bRead_clicked()
 			hVolume = INVALID_HANDLE_VALUE;
 			bWrite->setEnabled(true);
 			bRead->setEnabled(true);
+			bExit->setEnabled(true);
 			return;
 		}
 		if (!writeSectorDataToHandle(hFile, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
@@ -375,6 +412,7 @@ void MainWindow::on_bRead_clicked()
 			hVolume = INVALID_HANDLE_VALUE;
 			bWrite->setEnabled(true);
 			bRead->setEnabled(true);
+			bExit->setEnabled(true);
 			return;
 		}
 		delete sectorData;
@@ -404,4 +442,5 @@ void MainWindow::on_bRead_clicked()
 	noclose = false;
 	bWrite->setEnabled(true);
 	bRead->setEnabled(true);
+	bExit->setEnabled(true);
 }

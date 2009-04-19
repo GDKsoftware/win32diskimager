@@ -38,6 +38,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void closeEvent(QCloseEvent *event);
 	protected slots:
 		void on_tbBrowse_clicked();
+		void on_tbRefresh_clicked();
 		void on_bWrite_clicked();
 		void on_bRead_clicked();
 	private:

@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/images" >
+    <file>images/browse.png</file>
+    <file>images/reload.png</file>
     <file>images/Win32DiskImager.png</file>
   </qresource>
 </RCC>
