@@ -48,5 +48,6 @@ char *readSectorDataFromHandle(HANDLE handle, unsigned long startsector, unsigne
 bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long startsector, unsigned long numsectors, unsigned long sectorsize);
 unsigned long getNumberOfSectors(HANDLE handle, unsigned long *sectorsize);
 unsigned long getFileSizeInSectors(HANDLE handle, unsigned long sectorsize);
+bool spaceAvailable(char *location, unsigned long spaceneeded, bool checkfreespace);
 
 #endif // DISK_H
