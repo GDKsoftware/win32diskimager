@@ -160,11 +160,6 @@ void MainWindow::on_bWrite_clicked()
 				QMessageBox::critical(NULL, "Write Error", "Image file cannot be located on the requested device.");
 				return;
 			}
-			if (!spaceAvailable(QString("%1:\\").arg(cboxDevice->currentText().at(1)).toAscii().data(), (unsigned long)fileinfo.size(), false))
-			{
-				QMessageBox::critical(NULL, "Write Error", "Not enough space on disk.");
-				return;
-			}
 			if (QMessageBox::warning(NULL, "Confirm overwrite", "Writing to a physical device can corrupt the device.\nAre you sure you want to continue?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
 				return;
 			status = STATUS_WRITING;
@@ -172,7 +167,7 @@ void MainWindow::on_bWrite_clicked()
 			bWrite->setEnabled(false);
 			bRead->setEnabled(false);
 			double mbpersec;
-			unsigned long i, lasti, numsectors;
+			unsigned long i, lasti, availablesectors, numsectors;
 			int volumeID = cboxDevice->currentText().at(1).toAscii() - 'A';
 			int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
 			filelocation = new char[5 + leFile->text().length()];
@@ -243,8 +238,26 @@ void MainWindow::on_bWrite_clicked()
 				bRead->setEnabled(true);
 				return;
 			}
-			getNumberOfSectors(hRawDisk, &sectorsize);
+			availablesectors = getNumberOfSectors(hRawDisk, &sectorsize);
 			numsectors = getFileSizeInSectors(hFile, sectorsize);
+			if (numsectors > availablesectors)
+			{
+				QMessageBox::critical(NULL, "Write Error", "Not enough space on disk.");
+				delete filelocation;
+				removeLockOnVolume(hVolume);
+				CloseHandle(hRawDisk);
+				CloseHandle(hFile);
+				CloseHandle(hVolume);
+				status = STATUS_IDLE;
+				filelocation = NULL;
+				hVolume = INVALID_HANDLE_VALUE;
+				hFile = INVALID_HANDLE_VALUE;
+				hRawDisk = INVALID_HANDLE_VALUE;
+				bCancel->setEnabled(false);
+				bWrite->setEnabled(true);
+				bRead->setEnabled(true);
+				return;
+			}
 			if (numsectors == 0ul)
 				progressbar->setRange(0, 100);
 			else
@@ -425,7 +438,7 @@ void MainWindow::on_bRead_clicked()
 			return;
 		}
 		numsectors = getNumberOfSectors(hRawDisk, &sectorsize);
-		if (!spaceAvailable(leFile->text().left(3).toAscii().data(), numsectors * sectorsize, true))
+		if (!spaceAvailable(leFile->text().left(3).toAscii().data(), numsectors * sectorsize))
 		{
 			QMessageBox::critical(NULL, "Write Error", "Disk is not large enough for the specified image.");
 			delete filelocation;

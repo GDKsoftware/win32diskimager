@@ -214,11 +214,9 @@ unsigned long getFileSizeInSectors(HANDLE handle, unsigned long sectorsize)
 	return filesize / sectorsize;
 }
 
-bool spaceAvailable(char *location, unsigned long spaceneeded, bool checkfreespace)
+bool spaceAvailable(char *location, unsigned long spaceneeded)
 {
 	unsigned long freeclusters, sectorspercluster, bytespersector, totalclusters;
 	GetDiskFreeSpace(location, &sectorspercluster, &bytespersector, &freeclusters, &totalclusters);
-	if (checkfreespace)
-		return (spaceneeded <= sectorspercluster * freeclusters * bytespersector);
-	return (spaceneeded <= sectorspercluster * totalclusters * bytespersector);
+	return (spaceneeded <= sectorspercluster * freeclusters * bytespersector);
 }
