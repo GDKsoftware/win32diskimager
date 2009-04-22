@@ -43,7 +43,7 @@ int getPhysicalDeviceID(int device)
 	{
 		char *errormessage=NULL;
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
-		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the device.\nThis usually means something is currently accessing thie device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
+		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the device.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
 	bResult = DeviceIoControl(hDevice, IOCTL_STORAGE_GET_DEVICE_NUMBER, NULL, 0, &deviceInfo, sizeof(deviceInfo), &bytesreturned, NULL);
@@ -51,7 +51,7 @@ int getPhysicalDeviceID(int device)
 	{
 		char *errormessage=NULL;
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
-		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the device.\nThis usually means something is currently accessing thie device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
+		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the device.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 		return -1;
 	}
