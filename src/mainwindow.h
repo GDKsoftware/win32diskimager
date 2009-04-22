@@ -21,6 +21,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+
 #include <QtGui>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +51,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		HANDLE hVolume;
 		HANDLE hFile;
 		HANDLE hRawDisk;
-		unsigned long sectorsize;
+		unsigned long long sectorsize;
 		int status;
 		char *filelocation;
 		char *sectorData;

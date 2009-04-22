@@ -18,6 +18,10 @@
  *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
  **********************************************************************/
 
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+
 #include <QtGui>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,8 +42,8 @@ int getPhysicalDeviceID(int device)
 	if (hDevice == INVALID_HANDLE_VALUE)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, &errormessage[0], 0, NULL);
-		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the device.\nError %1: %2").arg(GetLastError()).arg(errormessage));
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
+		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the device.\nThis usually means something is currently accessing thie device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
 	bResult = DeviceIoControl(hDevice, IOCTL_STORAGE_GET_DEVICE_NUMBER, NULL, 0, &deviceInfo, sizeof(deviceInfo), &bytesreturned, NULL);
@@ -47,7 +51,7 @@ int getPhysicalDeviceID(int device)
 	{
 		char *errormessage=NULL;
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
-		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get the device information.\nError %1: %2").arg(GetLastError()).arg(errormessage));
+		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the device.\nThis usually means something is currently accessing thie device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 		return -1;
 	}
@@ -156,7 +160,7 @@ bool isVolumeUnmounted(HANDLE handle)
 	return (bResult == FALSE);
 }
 
-char *readSectorDataFromHandle(HANDLE handle, unsigned long startsector, unsigned long numsectors, unsigned long sectorsize)
+char *readSectorDataFromHandle(HANDLE handle, unsigned long long startsector, unsigned long long numsectors, unsigned long long sectorsize)
 {
 	unsigned long bytesread;
 	char *data = new char[sectorsize * numsectors];
@@ -173,7 +177,7 @@ char *readSectorDataFromHandle(HANDLE handle, unsigned long startsector, unsigne
 	return data;
 }
 
-bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long startsector, unsigned long numsectors, unsigned long sectorsize)
+bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long long startsector, unsigned long long numsectors, unsigned long long sectorsize)
 {
 	unsigned long byteswritten;
 	BOOL bResult;
@@ -189,7 +193,7 @@ bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long startsecto
 	return (bResult == TRUE);
 }
 
-unsigned long getNumberOfSectors(HANDLE handle, unsigned long *sectorsize)
+unsigned long long getNumberOfSectors(HANDLE handle, unsigned long long *sectorsize)
 {
 	DWORD junk;
 	DISK_GEOMETRY geometry;
@@ -204,19 +208,28 @@ unsigned long getNumberOfSectors(HANDLE handle, unsigned long *sectorsize)
 		return 0;
 	}
 	if (sectorsize != NULL)
-		*sectorsize = (unsigned long)geometry.BytesPerSector;
-	return geometry.Cylinders.QuadPart * (unsigned long)geometry.TracksPerCylinder * (unsigned long)geometry.SectorsPerTrack;
+		*sectorsize = (unsigned long long)geometry.BytesPerSector;
+	return (unsigned long long)geometry.Cylinders.QuadPart * (unsigned long long)geometry.TracksPerCylinder * (unsigned long long)geometry.SectorsPerTrack;
 }
 
-unsigned long getFileSizeInSectors(HANDLE handle, unsigned long sectorsize)
+unsigned long long getFileSizeInSectors(HANDLE handle, unsigned long long sectorsize)
 {
-	unsigned long filesize = GetFileSize(handle, NULL);
-	return filesize / sectorsize;
+	LARGE_INTEGER filesize;
+	GetFileSizeEx(handle, &filesize);
+	return (unsigned long long)filesize.QuadPart / sectorsize;
 }
 
-bool spaceAvailable(char *location, unsigned long spaceneeded)
+bool spaceAvailable(char *location, unsigned long long spaceneeded)
 {
-	unsigned long freeclusters, sectorspercluster, bytespersector, totalclusters;
-	GetDiskFreeSpace(location, &sectorspercluster, &bytespersector, &freeclusters, &totalclusters);
-	return (spaceneeded <= sectorspercluster * freeclusters * bytespersector);
+	ULARGE_INTEGER freespace;
+	BOOL bResult;
+	bResult = GetDiskFreeSpaceEx(location, NULL, NULL, &freespace);
+	if (!bResult)
+	{
+		char *errormessage=NULL;
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
+		QMessageBox::critical(NULL, "Free Space Error", QString("Failed to get the free space on drive %1.\nError %2: %3\nChecking of free space will be skipped.").arg(location).arg(GetLastError()).arg(errormessage));
+		return true;
+	}
+	return (spaceneeded <= freespace.QuadPart);
 }

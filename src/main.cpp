@@ -18,6 +18,10 @@
  *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
  **********************************************************************/
 
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+
 #include <QApplication>
 #include <stdio.h>
 #include <stdlib.h>

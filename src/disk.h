@@ -21,6 +21,10 @@
 #ifndef DISK_H
 #define DISK_H
 
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+
 #include <QtGui>
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,10 +48,10 @@ bool getLockOnVolume(HANDLE handle);
 bool removeLockOnVolume(HANDLE handle);
 bool unmountVolume(HANDLE handle);
 bool isVolumeUnmounted(HANDLE handle);
-char *readSectorDataFromHandle(HANDLE handle, unsigned long startsector, unsigned long numsectors, unsigned long sectorsize);
-bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long startsector, unsigned long numsectors, unsigned long sectorsize);
-unsigned long getNumberOfSectors(HANDLE handle, unsigned long *sectorsize);
-unsigned long getFileSizeInSectors(HANDLE handle, unsigned long sectorsize);
-bool spaceAvailable(char *location, unsigned long spaceneeded);
+char *readSectorDataFromHandle(HANDLE handle, unsigned long long startsector, unsigned long long numsectors, unsigned long long sectorsize);
+bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long long startsector, unsigned long long numsectors, unsigned long long sectorsize);
+unsigned long long getNumberOfSectors(HANDLE handle, unsigned long long *sectorsize);
+unsigned long long getFileSizeInSectors(HANDLE handle, unsigned long long sectorsize);
+bool spaceAvailable(char *location, unsigned long long spaceneeded);
 
 #endif // DISK_H

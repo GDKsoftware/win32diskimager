@@ -18,6 +18,10 @@
  *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
  **********************************************************************/
 
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+
 #include <QtGui>
 #include <QCoreApplication>
 #include <stdio.h>
@@ -167,7 +171,7 @@ void MainWindow::on_bWrite_clicked()
 			bWrite->setEnabled(false);
 			bRead->setEnabled(false);
 			double mbpersec;
-			unsigned long i, lasti, availablesectors, numsectors;
+			unsigned long long i, lasti, availablesectors, numsectors;
 			int volumeID = cboxDevice->currentText().at(1).toAscii() - 'A';
 			int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
 			filelocation = new char[5 + leFile->text().length()];
@@ -366,7 +370,7 @@ void MainWindow::on_bRead_clicked()
 		bRead->setEnabled(false);
 		status = STATUS_READING;
 		double mbpersec;
-		unsigned long i, lasti, numsectors;
+		unsigned long long i, lasti, numsectors, filesize, spaceneeded = 0ull;
 		int volumeID = cboxDevice->currentText().at(1).toAscii() - 'A';
 		int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
 		filelocation = new char[5 + leFile->text().length()];
@@ -438,7 +442,12 @@ void MainWindow::on_bRead_clicked()
 			return;
 		}
 		numsectors = getNumberOfSectors(hRawDisk, &sectorsize);
-		if (!spaceAvailable(leFile->text().left(3).toAscii().data(), numsectors * sectorsize))
+		filesize = getFileSizeInSectors(hFile, sectorsize);
+		if (filesize >= numsectors)
+			spaceneeded = 0ull;
+		else
+			spaceneeded = (unsigned long long)(numsectors - filesize) * (unsigned long long)(sectorsize);
+		if (!spaceAvailable(leFile->text().left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
 		{
 			QMessageBox::critical(NULL, "Write Error", "Disk is not large enough for the specified image.");
 			delete filelocation;
