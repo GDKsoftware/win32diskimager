@@ -38,7 +38,7 @@ int getPhysicalDeviceID(int device)
 	if (hDevice == INVALID_HANDLE_VALUE)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), &errormessage[0], 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, &errormessage[0], 0, NULL);
 		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the device.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
@@ -46,7 +46,7 @@ int getPhysicalDeviceID(int device)
 	if (!bResult)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get the device information.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 		return -1;
@@ -64,7 +64,7 @@ HANDLE getHandleOnFile(char *filelocation, DWORD access)
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "File Error", QString("An error occurred when attempting to get a handle on the file.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
@@ -80,7 +80,7 @@ HANDLE getHandleOnDevice(int device, DWORD access)
 	if (hDevice == INVALID_HANDLE_VALUE)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "Device Error", QString("An error occurred when attempting to get a handle on the device.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
@@ -96,7 +96,7 @@ HANDLE getHandleOnVolume(int volume, DWORD access)
 	if (hVolume == INVALID_HANDLE_VALUE)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "Volume Error", QString("An error occurred when attempting to get a handle on the volume.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
@@ -111,7 +111,7 @@ bool getLockOnVolume(HANDLE handle)
 	if (!bResult)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "Lock Error", QString("An error occurred when attempting to lock the volume.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
@@ -126,7 +126,7 @@ bool removeLockOnVolume(HANDLE handle)
 	if (!bResult)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "Unlock Error", QString("An error occurred when attempting to unlock the volume.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
@@ -141,7 +141,7 @@ bool unmountVolume(HANDLE handle)
 	if (!bResult)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "Dismount Error", QString("An error occurred when attempting to dismount the volume.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
@@ -164,7 +164,7 @@ char *readSectorDataFromHandle(HANDLE handle, unsigned long startsector, unsigne
 	if (!ReadFile(handle, data, sectorsize * numsectors, &bytesread, NULL))
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "Read Error", QString("An error occurred when attempting to read data from handle.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 		delete data;
@@ -182,7 +182,7 @@ bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long startsecto
 	if (!bResult)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "Write Error", QString("An error occurred when attempting to write data from handle.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
@@ -198,7 +198,7 @@ unsigned long getNumberOfSectors(HANDLE handle, unsigned long *sectorsize)
 	if (!bResult)
 	{
 		char *errormessage=NULL;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errormessage, 0, NULL);
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, errormessage, 0, NULL);
 		QMessageBox::critical(NULL, "Device Error", QString("An error occurred when attempting to get the device's geometry.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 		return 0;

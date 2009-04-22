@@ -36,9 +36,11 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		MainWindow(QWidget *parent=0);
 		~MainWindow();
 		void closeEvent(QCloseEvent *event);
+		enum Status {STATUS_IDLE=0, STATUS_READING, STATUS_WRITING, STATUS_EXIT};
 	protected slots:
 		void on_tbBrowse_clicked();
 		void on_tbRefresh_clicked();
+		void on_bCancel_clicked();
 		void on_bWrite_clicked();
 		void on_bRead_clicked();
 	private:
@@ -46,10 +48,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		HANDLE hFile;
 		HANDLE hRawDisk;
 		unsigned long sectorsize;
+		int status;
 		char *filelocation;
 		char *sectorData;
 	  QTime timer;
-		bool noclose;
 };
 
 #endif // MAINWINDOW_H

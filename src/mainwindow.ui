@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>309</width>
+    <width>326</width>
     <height>137</height>
    </rect>
   </property>
@@ -137,7 +137,32 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="bCancel" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="statusTip" >
+         <string>Cancel current process.</string>
+        </property>
+        <property name="text" >
+         <string>Cancel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="bRead" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip" >
          <string/>
         </property>
@@ -151,6 +176,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="bWrite" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="statusTip" >
          <string>Write data in 'Image File' to 'Device'</string>
         </property>
@@ -161,6 +192,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="bExit" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="statusTip" >
          <string>Exit Win32 Disk Imager</string>
         </property>
