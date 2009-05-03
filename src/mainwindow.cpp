@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	hRawDisk = INVALID_HANDLE_VALUE;
 	filelocation = NULL;
 	sectorData = NULL;
-	sectorsize = 0ull;
+	sectorsize = 0ul;
 }
 
 MainWindow::~MainWindow()
@@ -262,15 +262,15 @@ void MainWindow::on_bWrite_clicked()
 				bRead->setEnabled(true);
 				return;
 			}
-			if (numsectors == 0ull)
+			if (numsectors == 0ul)
 				progressbar->setRange(0, 100);
 			else
 				progressbar->setRange(0, (int)numsectors);
-			lasti = 0ull;
+			lasti = 0ul;
 			timer.start();
-			for (i = 0ull; i < numsectors && status == STATUS_WRITING; i += 1024ull)
+			for (i = 0ul; i < numsectors && status == STATUS_WRITING; i += 1024ul)
 			{
-				sectorData = readSectorDataFromHandle(hFile, i, (numsectors - i >= 1024ull) ? 1024ull:(numsectors - i), sectorsize);
+				sectorData = readSectorDataFromHandle(hFile, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
 				if (sectorData == NULL)
 				{
 					delete filelocation;
@@ -290,7 +290,7 @@ void MainWindow::on_bWrite_clicked()
 					bRead->setEnabled(true);
 					return;
 				}
-				if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ull) ? 1024ull:(numsectors - i), sectorsize))
+				if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
 				{
 					delete filelocation;
 					delete sectorData;
@@ -315,7 +315,7 @@ void MainWindow::on_bWrite_clicked()
 				if (timer.elapsed() >= 1000)
 				{
 					mbpersec = (((double)sectorsize * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
-					statusbar->showMessage(QString("%1Mb/s").arg(mbpersec));
+                                        statusbar->showMessage(QString("%1MB/s").arg(mbpersec));
 					timer.start();
 					lasti = i;
 				}
@@ -450,6 +450,7 @@ void MainWindow::on_bRead_clicked()
 		if (!spaceAvailable(leFile->text().left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
 		{
 			QMessageBox::critical(NULL, "Write Error", "Disk is not large enough for the specified image.");
+			delete filelocation;
 			removeLockOnVolume(hVolume);
 			CloseHandle(hRawDisk);
 			CloseHandle(hFile);
@@ -463,19 +464,17 @@ void MainWindow::on_bRead_clicked()
 			bCancel->setEnabled(false);
 			bWrite->setEnabled(true);
 			bRead->setEnabled(true);
-			remove(filelocation);
-			delete filelocation;
 			return;
 		}
-		if (numsectors == 0ull)
+		if (numsectors == 0ul)
 			progressbar->setRange(0, 100);
 		else
 			progressbar->setRange(0, (int)numsectors);
-		lasti = 0ull;
+		lasti = 0ul;
 		timer.start();
-		for (i = 0ull; i < numsectors && status == STATUS_READING; i += 1024ull)
+		for (i = 0ul; i < numsectors && status == STATUS_READING; i += 1024ul)
 		{
-			sectorData = readSectorDataFromHandle(hRawDisk, i, (numsectors - i >= 1024ull) ? 1024ull:(numsectors - i), sectorsize);
+			sectorData = readSectorDataFromHandle(hRawDisk, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
 			if (sectorData == NULL)
 			{
 				delete filelocation;
@@ -495,7 +494,7 @@ void MainWindow::on_bRead_clicked()
 				bRead->setEnabled(true);
 				return;
 			}
-			if (!writeSectorDataToHandle(hFile, sectorData, i, (numsectors - i >= 1024ull) ? 1024ull:(numsectors - i), sectorsize))
+			if (!writeSectorDataToHandle(hFile, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
 			{
 				delete filelocation;
 				delete sectorData;
@@ -519,7 +518,7 @@ void MainWindow::on_bRead_clicked()
 			if (timer.elapsed() >= 1000)
 			{
 				mbpersec = (((double)sectorsize * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
-				statusbar->showMessage(QString("%1Mb/s").arg(mbpersec));
+                                statusbar->showMessage(QString("%1MB/s").arg(mbpersec));
 				timer.start();
 				lasti = i;
 			}
