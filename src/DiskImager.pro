@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = ..\..\Win32DiskImager
+TARGET = ../../Win32DiskImager
 DEPENDPATH += .
 INCLUDEPATH += .
 CONFIG += release

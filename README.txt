@@ -1,5 +1,5 @@
 Image Writer for Microsoft Windows
-Release 0.2 (r25) - The "Maddog ate my homework at LinuxFest NW" Release
+Release 0.3 (r27) - The Where did everyone go release.
 ===
 About:
 This utility is used to write Ubuntu img files to SD and USB cards.
