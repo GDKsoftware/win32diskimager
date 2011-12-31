@@ -24,6 +24,7 @@
 
 #include <QtGui>
 #include <QCoreApplication>
+#include <QFileInfo>
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
@@ -59,7 +60,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	hVolume = INVALID_HANDLE_VALUE;
 	hFile = INVALID_HANDLE_VALUE;
 	hRawDisk = INVALID_HANDLE_VALUE;
-	filelocation = NULL;
+        if (QCoreApplication::arguments().count() == 1)
+            filelocation = NULL;
+        else
+        {
+            QString filelocation = QApplication::arguments().at(1);
+            QFileInfo FileInfo = QFileInfo(filelocation);
+            leFile->setText(FileInfo.absoluteFilePath());
+        }
 	sectorData = NULL;
 	sectorsize = 0ul;
 }
