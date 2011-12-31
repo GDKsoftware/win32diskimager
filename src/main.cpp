@@ -15,7 +15,7 @@
  *  Boston, MA  02110-1301, USA.                                      *
  *                                                                    *
  *  ---                                                               *
- *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
+ *  Copyright (C) 2009, 2011 ImageWriter developers                   *
  **********************************************************************/
 
 #ifndef WINVER
@@ -23,8 +23,8 @@
 #endif
 
 #include <QApplication>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <windows.h>
 #include <winioctl.h>
 #include "disk.h"

@@ -15,7 +15,7 @@
  *  Boston, MA  02110-1301, USA.                                      *
  *                                                                    *
  *  ---                                                               *
- *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
+ *  Copyright (C) 2009, 2011 ImageWriter developers                   *
  **********************************************************************/
 
 #ifndef MAINWINDOW_H
@@ -26,8 +26,8 @@
 #endif
 
 #include <QtGui>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <windows.h>
 #include <winioctl.h>
 #include "ui_mainwindow.h"
@@ -41,13 +41,18 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		~MainWindow();
 		void closeEvent(QCloseEvent *event);
 		enum Status {STATUS_IDLE=0, STATUS_READING, STATUS_WRITING, STATUS_EXIT};
+		bool winEvent ( MSG * msg, long * result );
 	protected slots:
 		void on_tbBrowse_clicked();
-		void on_tbRefresh_clicked();
 		void on_bCancel_clicked();
 		void on_bWrite_clicked();
 		void on_bRead_clicked();
+		void on_leFile_textChanged(const QString&);
 	private:
+		// find attached devices
+		void getLogicalDrives();
+		void setReadWriteButtonState();
+
 		HANDLE hVolume;
 		HANDLE hFile;
 		HANDLE hRawDisk;
@@ -55,7 +60,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		int status;
 		char *filelocation;
 		char *sectorData;
-	  QTime timer;
+		QTime timer;
 };
 
 #endif // MAINWINDOW_H
