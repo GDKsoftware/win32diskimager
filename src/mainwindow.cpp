@@ -119,7 +119,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_tbBrowse_clicked()
 {
-	QString filelocation = QFileDialog::getSaveFileName(NULL, "Select a disk image", QString(), "*.img;*.IMG", 0, QFileDialog::DontConfirmOverwrite);
+	QString filelocation = QFileDialog::getSaveFileName(NULL, "Select a disk image", QString(), "*.img;*.IMG;;*.*", 0, QFileDialog::DontConfirmOverwrite);
 	if (!filelocation.isNull())
 		leFile->setText(filelocation);
 }
