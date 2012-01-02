@@ -23,8 +23,8 @@
 #endif
 
 #include <QApplication>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <windows.h>
 #include <winioctl.h>
 #include "disk.h"

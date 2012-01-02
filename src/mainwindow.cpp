@@ -25,10 +25,11 @@
 #include <QtGui>
 #include <QCoreApplication>
 #include <QFileInfo>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <windows.h>
 #include <winioctl.h>
+#include <dbt.h>
 #include "disk.h"
 #include "mainwindow.h"
 
@@ -37,23 +38,7 @@ extern QApplication *app;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	setupUi(this);
-	unsigned long availabledrives = GetLogicalDrives();
-	int i = 0;
-	while (availabledrives != 0)
-	{
-		if ((availabledrives % 2) != 0)
-		{
-			char drivename[] = "\\\\.\\A:\\";
-			drivename[4] += i;
-			if (DRIVE_REMOVABLE == GetDriveType(drivename))
-			{
-				cboxDevice->addItem(QString("[%1]").arg(drivename[4]), QVariant(getPhysicalDeviceID(i)));
-			}
-		}
-		availabledrives >>= 1;
-		cboxDevice->setCurrentIndex(0);
-		++i;
-	}
+	getLogicalDrives();
 	status = STATUS_IDLE;
 	progressbar->reset();
 	statusbar->showMessage("Waiting for a task.");
@@ -61,13 +46,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	hFile = INVALID_HANDLE_VALUE;
 	hRawDisk = INVALID_HANDLE_VALUE;
         if (QCoreApplication::arguments().count() == 1)
+	{
             filelocation = NULL;
+	}
         else
         {
             QString filelocation = QApplication::arguments().at(1);
             QFileInfo FileInfo = QFileInfo(filelocation);
             leFile->setText(FileInfo.absoluteFilePath());
         }
+	
+	setReadWriteButtonState();
+
 	sectorData = NULL;
 	sectorsize = 0ul;
 }
@@ -101,18 +91,32 @@ MainWindow::~MainWindow()
 	}
 }
 
+void MainWindow::setReadWriteButtonState()
+{
+	bool fileSelected = !(leFile->text().isEmpty());
+	bool deviceSelected = (cboxDevice->count() > 0);
+
+	// set read and write buttons according to status of file/device
+	bRead->setEnabled(deviceSelected && fileSelected);
+	bWrite->setEnabled(deviceSelected && fileSelected);
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 	if (status == STATUS_READING)
 	{
 		if (QMessageBox::warning(NULL, "Exit?", "Exiting now will result in a corrupt image file.\nAre you sure you want to exit?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+		{
 			status = STATUS_EXIT;
+		}
 		event->ignore();
 	}
 	else if (status == STATUS_WRITING)
 	{
 		if (QMessageBox::warning(NULL, "Exit?", "Exiting now will result in a corrupt disk.\nAre you sure you want to exit?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+		{
 			status = STATUS_EXIT;
+		}
 		event->ignore();
 	}
 }
@@ -121,29 +125,14 @@ void MainWindow::on_tbBrowse_clicked()
 {
 	QString filelocation = QFileDialog::getSaveFileName(NULL, "Select a disk image", QString(), "*.img;*.IMG;;*.*", 0, QFileDialog::DontConfirmOverwrite);
 	if (!filelocation.isNull())
+	{
 		leFile->setText(filelocation);
+	}
 }
 
-void MainWindow::on_tbRefresh_clicked()
+void MainWindow::on_leFile_textChanged(const QString &qs)
 {
-	unsigned long availabledrives = GetLogicalDrives();
-	int i = 0;
-	cboxDevice->clear();
-	while (availabledrives != 0)
-	{
-		if ((availabledrives % 2) != 0)
-		{
-			char drivename[] = "\\\\.\\A:\\";
-			drivename[4] += i;
-			if (DRIVE_REMOVABLE == GetDriveType(drivename))
-			{
-				cboxDevice->addItem(QString("[%1]").arg(drivename[4]), QVariant(getPhysicalDeviceID(i)));
-			}
-		}
-		availabledrives >>= 1;
-		cboxDevice->setCurrentIndex(0);
-		++i;
-	}
+	setReadWriteButtonState();
 }
 
 void MainWindow::on_bCancel_clicked()
@@ -151,12 +140,16 @@ void MainWindow::on_bCancel_clicked()
 	if (status == STATUS_READING)
 	{
 		if (QMessageBox::warning(NULL, "Cancel?", "Canceling now will result in a corrupt image file.\nAre you sure you want to cancel?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+		{
 			status = STATUS_IDLE;
+	}
 	}
 	else if (status == STATUS_WRITING)
 	{
 		if (QMessageBox::warning(NULL, "Cancel?", "Canceling now will result in a corrupt disk.\nAre you sure you want to cancel?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+		{
 			status = STATUS_IDLE;
+	}
 	}
 }
 
@@ -165,7 +158,8 @@ void MainWindow::on_bWrite_clicked()
 	if (!leFile->text().isEmpty())
 	{
 		QFileInfo fileinfo(leFile->text());
-		if (fileinfo.exists() && fileinfo.isFile() && fileinfo.isReadable() && fileinfo.size() > 0)
+		if (fileinfo.exists() && fileinfo.isFile() &&
+			fileinfo.isReadable() && (fileinfo.size() > 0) )
 		{
 			if (leFile->text().at(0) == cboxDevice->currentText().at(1))
 			{
@@ -173,7 +167,9 @@ void MainWindow::on_bWrite_clicked()
 				return;
 			}
 			if (QMessageBox::warning(NULL, "Confirm overwrite", "Writing to a physical device can corrupt the device.\nAre you sure you want to continue?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+			{
 				return;
+			}
 			status = STATUS_WRITING;
 			bCancel->setEnabled(true);
 			bWrite->setEnabled(false);
@@ -191,8 +187,7 @@ void MainWindow::on_bWrite_clicked()
 				status = STATUS_IDLE;
 				filelocation = NULL;
 				bCancel->setEnabled(false);
-				bWrite->setEnabled(true);
-				bRead->setEnabled(true);
+				setReadWriteButtonState();
 				return;
 			}
 			if (!getLockOnVolume(hVolume))
@@ -203,8 +198,7 @@ void MainWindow::on_bWrite_clicked()
 				filelocation = NULL;
 				hVolume = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
-				bWrite->setEnabled(true);
-				bRead->setEnabled(true);
+				setReadWriteButtonState();
 				return;
 			}
 			if (!unmountVolume(hVolume))
@@ -216,8 +210,7 @@ void MainWindow::on_bWrite_clicked()
 				filelocation = NULL;
 				hVolume = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
-				bWrite->setEnabled(true);
-				bRead->setEnabled(true);
+				setReadWriteButtonState();
 				return;
 			}
 			hFile = getHandleOnFile(filelocation, GENERIC_READ);
@@ -230,8 +223,7 @@ void MainWindow::on_bWrite_clicked()
 				filelocation = NULL;
 				hVolume = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
-				bWrite->setEnabled(true);
-				bRead->setEnabled(true);
+				setReadWriteButtonState();
 				return;
 			}
 			hRawDisk = getHandleOnDevice(deviceID, GENERIC_WRITE);
@@ -246,8 +238,7 @@ void MainWindow::on_bWrite_clicked()
 				hVolume = INVALID_HANDLE_VALUE;
 				hFile = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
-				bWrite->setEnabled(true);
-				bRead->setEnabled(true);
+				setReadWriteButtonState();
 				return;
 			}
 			availablesectors = getNumberOfSectors(hRawDisk, &sectorsize);
@@ -266,14 +257,17 @@ void MainWindow::on_bWrite_clicked()
 				hFile = INVALID_HANDLE_VALUE;
 				hRawDisk = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
-				bWrite->setEnabled(true);
-				bRead->setEnabled(true);
+				setReadWriteButtonState();
 				return;
 			}
 			if (numsectors == 0ul)
+			{
 				progressbar->setRange(0, 100);
+			}
 			else
+			{
 				progressbar->setRange(0, (int)numsectors);
+			}
 			lasti = 0ul;
 			timer.start();
 			for (i = 0ul; i < numsectors && status == STATUS_WRITING; i += 1024ul)
@@ -294,8 +288,7 @@ void MainWindow::on_bWrite_clicked()
 					hFile = INVALID_HANDLE_VALUE;
 					hVolume = INVALID_HANDLE_VALUE;
 					bCancel->setEnabled(false);
-					bWrite->setEnabled(true);
-					bRead->setEnabled(true);
+					setReadWriteButtonState();
 					return;
 				}
 				if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
@@ -313,8 +306,7 @@ void MainWindow::on_bWrite_clicked()
 					hFile = INVALID_HANDLE_VALUE;
 					hVolume = INVALID_HANDLE_VALUE;
 					bCancel->setEnabled(false);
-					bWrite->setEnabled(true);
-					bRead->setEnabled(true);
+					setReadWriteButtonState();
 					return;
 				}
 				delete sectorData;
@@ -341,22 +333,34 @@ void MainWindow::on_bWrite_clicked()
 			hFile = INVALID_HANDLE_VALUE;
 			hVolume = INVALID_HANDLE_VALUE;
 		}
-		else if (!fileinfo.exists() || !fileinfo.isFile())
+		else
+		{
+			if (!fileinfo.exists() || !fileinfo.isFile())
+			{
 			QMessageBox::critical(NULL, "File Error", "The selected file does not exist.");
+			}
 		else if (!fileinfo.isReadable())
+			{
 			QMessageBox::critical(NULL, "File Error", "You do not have permision to read the selected file.");
+			}
 		else if (fileinfo.size() == 0)
+			{
 			QMessageBox::critical(NULL, "File Error", "The specified file contains no data.");
+			}
+		}
 		progressbar->reset();
 	  statusbar->showMessage("Done.");
 		bCancel->setEnabled(false);
-		bWrite->setEnabled(true);
-		bRead->setEnabled(true);
+		setReadWriteButtonState();
 	}
 	else
+	{
 		QMessageBox::critical(NULL, "File Error", "Please specify an image file to use.");
+	}
 	if (status == STATUS_EXIT)
+	{
 		close();
+	}
 	status = STATUS_IDLE;
 }
 
@@ -371,8 +375,12 @@ void MainWindow::on_bRead_clicked()
 			return;
 		}
 		if (fileinfo.exists())
+		{
 			if (QMessageBox::warning(NULL, "Confirm Overwrite", "Are you sure you want to overwrite the specified file?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+			{
 				return;
+			}
+		}
 		bCancel->setEnabled(true);
 		bWrite->setEnabled(false);
 		bRead->setEnabled(false);
@@ -390,8 +398,7 @@ void MainWindow::on_bRead_clicked()
 			status = STATUS_IDLE;
 			filelocation = NULL;
 			bCancel->setEnabled(false);
-			bWrite->setEnabled(true);
-			bRead->setEnabled(true);
+			setReadWriteButtonState();
 			return;
 		}
 		if (!getLockOnVolume(hVolume))
@@ -402,8 +409,7 @@ void MainWindow::on_bRead_clicked()
 			filelocation = NULL;
 			hVolume = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
-			bWrite->setEnabled(true);
-			bRead->setEnabled(true);
+			setReadWriteButtonState();
 			return;
 		}
 		if (!unmountVolume(hVolume))
@@ -415,8 +421,7 @@ void MainWindow::on_bRead_clicked()
 			filelocation = NULL;
 			hVolume = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
-			bWrite->setEnabled(true);
-			bRead->setEnabled(true);
+			setReadWriteButtonState();
 			return;
 		}
 		hFile = getHandleOnFile(filelocation, GENERIC_WRITE);
@@ -429,8 +434,7 @@ void MainWindow::on_bRead_clicked()
 			filelocation = NULL;
 			hVolume = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
-			bWrite->setEnabled(true);
-			bRead->setEnabled(true);
+			setReadWriteButtonState();
 			return;
 		}
 		hRawDisk = getHandleOnDevice(deviceID, GENERIC_READ);
@@ -445,16 +449,19 @@ void MainWindow::on_bRead_clicked()
 			hVolume = INVALID_HANDLE_VALUE;
 			hFile = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
-			bWrite->setEnabled(true);
-			bRead->setEnabled(true);
+			setReadWriteButtonState();
 			return;
 		}
 		numsectors = getNumberOfSectors(hRawDisk, &sectorsize);
 		filesize = getFileSizeInSectors(hFile, sectorsize);
 		if (filesize >= numsectors)
+		{
 			spaceneeded = 0ull;
+		}
 		else
+		{
 			spaceneeded = (unsigned long long)(numsectors - filesize) * (unsigned long long)(sectorsize);
+		}
 		if (!spaceAvailable(leFile->text().left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
 		{
 			QMessageBox::critical(NULL, "Write Error", "Disk is not large enough for the specified image.");
@@ -470,14 +477,17 @@ void MainWindow::on_bRead_clicked()
 			hFile = INVALID_HANDLE_VALUE;
 			hVolume = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
-			bWrite->setEnabled(true);
-			bRead->setEnabled(true);
+			setReadWriteButtonState();
 			return;
 		}
 		if (numsectors == 0ul)
+		{
 			progressbar->setRange(0, 100);
+		}
 		else
+		{
 			progressbar->setRange(0, (int)numsectors);
+		}
 		lasti = 0ul;
 		timer.start();
 		for (i = 0ul; i < numsectors && status == STATUS_READING; i += 1024ul)
@@ -498,8 +508,7 @@ void MainWindow::on_bRead_clicked()
 				hFile = INVALID_HANDLE_VALUE;
 				hVolume = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
-				bWrite->setEnabled(true);
-				bRead->setEnabled(true);
+				setReadWriteButtonState();
 				return;
 			}
 			if (!writeSectorDataToHandle(hFile, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
@@ -517,8 +526,7 @@ void MainWindow::on_bRead_clicked()
 				hFile = INVALID_HANDLE_VALUE;
 				hVolume = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
-				bWrite->setEnabled(true);
-				bRead->setEnabled(true);
+				setReadWriteButtonState();
 				return;
 			}
 			delete sectorData;
@@ -546,12 +554,119 @@ void MainWindow::on_bRead_clicked()
 		progressbar->reset();
 	  statusbar->showMessage("Done.");
 		bCancel->setEnabled(false);
-		bWrite->setEnabled(true);
-		bRead->setEnabled(true);
+		setReadWriteButtonState();
 	}
 	else
+	{
 		QMessageBox::critical(NULL, "File Info", "Please specify a file to save data to.");
+	}
 	if (status == STATUS_EXIT)
+	{
 		close();
+	}
 	status = STATUS_IDLE;
+}
+
+// getLogicalDrives sets cBoxDevice with any logical drives found, as long
+// as they indicate that they're either removable, or fixed and on USB bus
+void MainWindow::getLogicalDrives()
+{
+	// GetLogicalDrives returns 0 on failure, or a bitmask representing
+	// the drives available on the system (bit 0 = A:, bit 1 = B:, etc)
+	unsigned long driveMask = GetLogicalDrives();
+	int i = 0;
+	ULONG pID;
+
+	cboxDevice->clear();
+
+	while (driveMask != 0)
+	{
+		if (driveMask & 1)
+		{
+			// the "A" in drivename will get incremented by the # of bits
+			// we've shifted
+			char drivename[] = "\\\\.\\A:\\";
+			drivename[4] += i;
+			if (checkDriveType(drivename, &pID))
+			{
+				cboxDevice->addItem(QString("[%1:\\]").arg(drivename[4]), (qulonglong)pID);
+			}
+		}
+		driveMask >>= 1;
+		cboxDevice->setCurrentIndex(0);
+		++i;
+	}
+}
+
+// support routine for winEvent - returns the drive letter for a given mask
+//   taken from http://support.microsoft.com/kb/163503
+char FirstDriveFromMask (ULONG unitmask)
+{
+	char i;
+
+	for (i = 0; i < 26; ++i)
+	{
+		if (unitmask & 0x1)
+		{
+			break;
+		}
+		unitmask = unitmask >> 1;
+	}
+
+	return (i + 'A');
+}
+
+// register to receive notifications when USB devices are inserted or removed
+// adapted from http://www.known-issues.net/qt/qt-detect-event-windows.html
+bool MainWindow::winEvent ( MSG * msg, long * result )
+{
+	if(msg->message == WM_DEVICECHANGE)
+	{
+		PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)msg->lParam;
+		switch(msg->wParam)
+		{
+			case DBT_DEVICEARRIVAL:
+				if (lpdb -> dbch_devicetype == DBT_DEVTYP_VOLUME)
+				{
+					PDEV_BROADCAST_VOLUME lpdbv = (PDEV_BROADCAST_VOLUME)lpdb;
+					if(DBTF_NET)
+					{
+						char ALET = FirstDriveFromMask(lpdbv->dbcv_unitmask);
+						// add device to combo box (after sanity check that
+						// it's not already there, which it shouldn't be)
+						QString qs = QString("[%1:\\]").arg(ALET);
+						if (cboxDevice->findText(qs) == -1)
+						{
+							ULONG pID;
+							char longname[] = "\\\\.\\A:\\";
+							longname[4] = ALET;
+							// checkDriveType gets the physicalID
+							if (checkDriveType(longname, &pID))
+							{
+								cboxDevice->addItem(qs, (qulonglong)pID);
+								setReadWriteButtonState();
+							}
+						}
+					}
+				}
+				break;
+			case DBT_DEVICEREMOVECOMPLETE:
+				if (lpdb -> dbch_devicetype == DBT_DEVTYP_VOLUME)
+				{
+					PDEV_BROADCAST_VOLUME lpdbv = (PDEV_BROADCAST_VOLUME)lpdb;
+					if(DBTF_NET)
+					{
+						char ALET = FirstDriveFromMask(lpdbv->dbcv_unitmask);
+						//  find the device that was removed in the combo box,
+						//  and remove it from there....
+						//  "removeItem" ignores the request if the index is
+						//  out of range, and findText returns -1 if the item isn't found.
+						cboxDevice->removeItem(cboxDevice->findText(QString("[%1:\\]").arg(ALET)));
+						setReadWriteButtonState();
+					}
+				}
+				break;
+		} // skip the rest
+	} // end of if msg->message
+	return false; // let qt handle the rest
 }

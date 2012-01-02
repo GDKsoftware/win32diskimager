@@ -77,20 +77,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QToolButton" name="tbRefresh" >
-           <property name="statusTip" >
-            <string>Refresh the list of available devices</string>
-           </property>
-           <property name="text" >
-            <string>...</string>
-           </property>
-           <property name="icon" >
-            <iconset resource="gui_icons.qrc" >
-             <normaloff>:/images/images/reload.png</normaloff>:/images/images/reload.png</iconset>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
