@@ -16,6 +16,8 @@
  *                                                                    *
  *  ---                                                               *
  *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
+ *  Copyright (C) 2009, 2011 ImageWriter developers                   *
+ *                           https://launchpad.net/~image-writer-devs *
  **********************************************************************/
 
 #ifndef DISK_H

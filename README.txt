@@ -1,5 +1,5 @@
 Image Writer for Microsoft Windows
-Release 0.3 (r27) - The Where did everyone go release.
+Release 0.4 (r31) - The "2011 End of Year" release
 ===
 About:
 This utility is used to write Ubuntu img files to SD and USB cards.
@@ -41,3 +41,7 @@ This project uses and includes binaries of the Qt library from
 http://www.qtsoftware.com/, licensed under the Library General Public 
 license. It is available at http://get.qtsoftware.com/qtsdk/qt-sdk-win-opensource-2009.01.1.exe
 The license text is available in LGPL-2.1
+
+Original version developed by Justin Davis <tuxdavis@gmail.com>
+Maintained by the ImageWriter developers (https://launchpad.net/~image-writer-devs).
+
