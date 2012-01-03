@@ -36,8 +36,8 @@ HANDLE getHandleOnFile(char *filelocation, DWORD access)
 {
 	HANDLE hFile;
 	char *location = new char[5 + strlen(filelocation)];
-  sprintf(location, "\\\\.\\%s", filelocation);
-  hFile = CreateFile(location, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
+	sprintf(location, "\\\\.\\%s", filelocation);
+	hFile = CreateFile(location, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		char *errormessage=NULL;
@@ -257,6 +257,8 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
 // some routines fail if there's no trailing slash in a name,
 // 		others fail if there is.  So this routine takes a name (trailing
 // 		slash or no), and creates 2 versions - one with the slash, and one w/o
+//
+// 		CALLER MUST FREE THE 2 RETURNED STRINGS
 bool slashify(char *str, char **slash, char **noSlash)
 {
 	bool retVal = false;
@@ -267,21 +269,21 @@ bool slashify(char *str, char **slash, char **noSlash)
 		if ( *(str + strLen - 1) == '\\' )
 		{
 			// trailing slash exists
-			*slash = str;
-
-			if ( (*noSlash = (char *)calloc(strLen, sizeof(char))) != NULL)
+			if (( (*slash = (char *)calloc(strLen, sizeof(char))) != NULL) &&
+			    ( (*noSlash = (char *)calloc(strLen, sizeof(char))) != NULL))
 			{
+				strncpy(*slash, str, strLen);
 				strncpy(*noSlash, *slash, (strLen - 1));
 				retVal = true;
 			}
 		}
 		else
 		{
-			// no trailing slash
-			*noSlash = str;
-
-			if ( (*slash = (char *)calloc( (strLen + 2), sizeof(char))) != NULL)
+			// no trailing slash exists
+			if ( ((*slash = (char *)calloc( (strLen + 2), sizeof(char))) != NULL) &&
+			     ((*noSlash = (char *)calloc( strLen, sizeof(char))) != NULL) )
 			{
+				strncpy(*noSlash, str, strLen);
 				sprintf(*slash, "%s\\", *noSlash);
 				retVal = true;
 			}
@@ -311,8 +313,8 @@ bool checkDriveType(char *name, ULONG *pid)
 	driveType = GetDriveType(nameWithSlash);
 	switch( driveType )
 	{
-		case DRIVE_REMOVABLE: // The drive can be removed from the drive.
- 		case DRIVE_FIXED:     // The disk cannot be removed from the drive.
+		case DRIVE_REMOVABLE: // The media can be removed from the drive.
+ 		case DRIVE_FIXED:     // The media cannot be removed from the drive.
 			hDevice = CreateFile(nameNoSlash, 0, 0, NULL, OPEN_EXISTING, 0, NULL);
 			if (hDevice == INVALID_HANDLE_VALUE)
 			{
@@ -344,6 +346,10 @@ bool checkDriveType(char *name, ULONG *pid)
 		default:
 			retVal = false;
 	}
+
+	// free the strings allocated by slashify
+	free(nameWithSlash);
+	free(nameNoSlash);
 
 	return(retVal);
 }
