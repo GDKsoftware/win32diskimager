@@ -315,7 +315,7 @@ bool checkDriveType(char *name, ULONG *pid)
 	{
 		case DRIVE_REMOVABLE: // The media can be removed from the drive.
  		case DRIVE_FIXED:     // The media cannot be removed from the drive.
-			hDevice = CreateFile(nameNoSlash, 0, 0, NULL, OPEN_EXISTING, 0, NULL);
+			hDevice = CreateFile(nameNoSlash, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 			if (hDevice == INVALID_HANDLE_VALUE)
 			{
 				char *errormessage=NULL;
@@ -334,8 +334,14 @@ bool checkDriveType(char *name, ULONG *pid)
 				// removable or (fixed AND on the usb bus)
 				if(GetDisksProperty(hDevice, pDevDesc, &deviceInfo) && ( (driveType == DRIVE_REMOVABLE) || ( (driveType == DRIVE_FIXED) && (pDevDesc->BusType == BusTypeUsb)) ) )
 				{
-					*pid = deviceInfo.DeviceNumber;
-					retVal = true;
+					// ensure that the drive is actually accessible
+					// multi-card hubs were reporting "removable" even when empty
+					DWORD cbBytesReturned;
+					if(DeviceIoControl (hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
+					{
+						*pid = deviceInfo.DeviceNumber;
+						retVal = true;
+					}
 				}
 
 				delete pDevDesc;
