@@ -15,7 +15,9 @@
  *  Boston, MA  02110-1301, USA.                                      *
  *                                                                    *
  *  ---                                                               *
+ *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
  *  Copyright (C) 2009, 2011 ImageWriter developers                   *
+ *                           https://launchpad.net/~image-writer-devs *
  **********************************************************************/
 
 #ifndef MAINWINDOW_H
@@ -60,7 +62,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		int status;
 		char *filelocation;
 		char *sectorData;
-		QTime timer;
+	  QTime timer;
 };
 
 #endif // MAINWINDOW_H
