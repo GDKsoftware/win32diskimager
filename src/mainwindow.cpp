@@ -32,8 +32,14 @@
 #include <windows.h>
 #include <winioctl.h>
 #include <dbt.h>
+//#include <QFile>
 #include "disk.h"
 #include "mainwindow.h"
+#include "md5.h"
+//#include <wincrypt.h>      // CryptoAPI definitions
+//#include <io.h>
+//#include <fcntl.h>
+//#include <sys\stat.h>
 
 extern QApplication *app;
 
@@ -47,17 +53,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	hVolume = INVALID_HANDLE_VALUE;
 	hFile = INVALID_HANDLE_VALUE;
 	hRawDisk = INVALID_HANDLE_VALUE;
-        if (QCoreApplication::arguments().count() == 1)
+	if (QCoreApplication::arguments().count() == 1)
 	{
-            filelocation = NULL;
+		filelocation = NULL;
 	}
-        else
-        {
-            QString filelocation = QApplication::arguments().at(1);
-            QFileInfo FileInfo = QFileInfo(filelocation);
-            leFile->setText(FileInfo.absoluteFilePath());
-        }
-	
+	else
+	{
+		QString filelocation = QApplication::arguments().at(1);
+		QFileInfo FileInfo = QFileInfo(filelocation);
+		leFile->setText(FileInfo.absoluteFilePath());
+	}
+
 	setReadWriteButtonState();
 
 	sectorData = NULL;
@@ -129,29 +135,106 @@ void MainWindow::on_tbBrowse_clicked()
 	if (!filelocation.isNull())
 	{
 		leFile->setText(filelocation);
+		md5label->clear();
+
+		// if the md5 checkbox is checked, verify that it's a good file
+		// and then generate the md5 hash
+		if(md5CheckBox->isChecked())
+		{
+			QFileInfo fileInfo(filelocation);
+
+			if (fileInfo.exists() && fileInfo.isFile() &&
+				fileInfo.isReadable() && (fileInfo.size() > 0) )
+			{
+				generateMd5(filelocation.toLatin1().data());
+			}
+		}
 	}
+}
+
+// generates the md5 hash
+void MainWindow::generateMd5(char *filename)
+{
+	md5label->setText("Generating...");
+	QApplication::processEvents();
+
+	MD5 md5;
+
+	// may take a few secs - display a wait cursor
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+	// "digestFile" computes the md5 - display it in the textbox
+	md5label->setText(md5.digestFile(filename));
+
+	// redisplay the normal cursor
+	QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::on_leFile_textChanged(const QString &qs)
 {
 	setReadWriteButtonState();
+
+	// if the box was cleared, clear any existing md5 hash
+	if( leFile->text().isEmpty() )
+	{
+		md5label->clear();
+	}
+}
+
+// on an "editingFinished" signal (IE: return press), if the lineedit
+// contains a valid file, and generate the md5
+void MainWindow::on_leFile_editingFinished()
+{
+	if(md5CheckBox->isChecked())
+	{
+		QFileInfo fileinfo(leFile->text());
+		if (fileinfo.exists() && fileinfo.isFile() &&
+			fileinfo.isReadable() && (fileinfo.size() > 0) )
+		{
+			generateMd5(leFile->text().toLatin1().data());
+		}
+	}
 }
 
 void MainWindow::on_bCancel_clicked()
 {
-	if (status == STATUS_READING)
+	if ( (status == STATUS_READING) || (status == STATUS_WRITING) )
+
 	{
-		if (QMessageBox::warning(NULL, "Cancel?", "Canceling now will result in a corrupt image file.\nAre you sure you want to cancel?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+		if (QMessageBox::warning(NULL, "Cancel?", "Canceling now will result in a corrupt destination.\nAre you sure you want to cancel?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 		{
 			status = STATUS_IDLE;
+		}
 	}
-	}
-	else if (status == STATUS_WRITING)
+}
+
+// if the md5 checkbox becomes "checked", verify the file and generate md5
+// when it's "unchecked", clear the md5 label
+void MainWindow::on_md5CheckBox_stateChanged()
+{
+	bool state = md5CheckBox->isChecked();
+
+	md5header->setEnabled(state);
+	md5label->setEnabled(state);
+
+	if(state)
 	{
-		if (QMessageBox::warning(NULL, "Cancel?", "Canceling now will result in a corrupt disk.\nAre you sure you want to cancel?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+		// changed from unchecked to checked
+		if( !(leFile->text().isEmpty()) )
 		{
-			status = STATUS_IDLE;
+			QFileInfo fileinfo(leFile->text());
+			if (fileinfo.exists() && fileinfo.isFile() &&
+				fileinfo.isReadable() && (fileinfo.size() > 0) )
+			{
+				generateMd5(leFile->text().toLatin1().data());
+			}
+		}
+		
 	}
+	else
+	{
+		// changed from checked to unchecked
+		md5label->clear();
 	}
 }
 
@@ -335,23 +418,20 @@ void MainWindow::on_bWrite_clicked()
 			hFile = INVALID_HANDLE_VALUE;
 			hVolume = INVALID_HANDLE_VALUE;
 		}
-		else
+		else if (!fileinfo.exists() || !fileinfo.isFile())
 		{
-			if (!fileinfo.exists() || !fileinfo.isFile())
-			{
 			QMessageBox::critical(NULL, "File Error", "The selected file does not exist.");
-			}
+		}
 		else if (!fileinfo.isReadable())
-			{
+		{
 			QMessageBox::critical(NULL, "File Error", "You do not have permision to read the selected file.");
-			}
+		}
 		else if (fileinfo.size() == 0)
-			{
+		{
 			QMessageBox::critical(NULL, "File Error", "The specified file contains no data.");
-			}
 		}
 		progressbar->reset();
-	  statusbar->showMessage("Done.");
+		statusbar->showMessage("Done.");
 		bCancel->setEnabled(false);
 		setReadWriteButtonState();
 	}
