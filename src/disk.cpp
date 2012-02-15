@@ -174,8 +174,10 @@ unsigned long long getNumberOfSectors(HANDLE handle, unsigned long long *sectors
 {
 	DWORD junk;
 	DISK_GEOMETRY geometry;
+	PARTITION_INFORMATION part;
 	BOOL bResult;
-	bResult = DeviceIoControl(handle, IOCTL_DISK_GET_DRIVE_GEOMETRY, NULL, 0, &geometry, sizeof(geometry), &junk, NULL);
+	bResult = DeviceIoControl(handle, IOCTL_DISK_GET_PARTITION_INFO, NULL, 0, &part, sizeof(part), &junk, NULL) &
+   		DeviceIoControl(handle, IOCTL_DISK_GET_DRIVE_GEOMETRY, NULL, 0, &geometry, sizeof(geometry), &junk, NULL);
 	if (!bResult)
 	{
 		char *errormessage=NULL;
@@ -187,7 +189,7 @@ unsigned long long getNumberOfSectors(HANDLE handle, unsigned long long *sectors
 	if (sectorsize != NULL)
 		*sectorsize = (unsigned long long)geometry.BytesPerSector;
 
-	return ((unsigned long long)geometry.Cylinders.QuadPart * (unsigned long long)geometry.TracksPerCylinder * (unsigned long long)geometry.SectorsPerTrack);
+	return (unsigned long long)part.PartitionLength.QuadPart / (unsigned long long)geometry.BytesPerSector;
 }
 
 unsigned long long getFileSizeInSectors(HANDLE handle, unsigned long long sectorsize)
