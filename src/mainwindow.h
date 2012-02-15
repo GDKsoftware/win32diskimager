@@ -50,6 +50,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void on_bWrite_clicked();
 		void on_bRead_clicked();
 		void on_leFile_textChanged(const QString&);
+		void on_leFile_editingFinished();
+		void on_md5CheckBox_stateChanged();
 	private:
 		// find attached devices
 		void getLogicalDrives();
@@ -62,7 +64,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		int status;
 		char *filelocation;
 		char *sectorData;
-	  QTime timer;
+		QTime timer;
+		void generateMd5(char *filename);
 };
 
 #endif // MAINWINDOW_H
