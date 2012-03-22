@@ -268,7 +268,7 @@ bool slashify(char *str, char **slash, char **noSlash)
 		if ( *(str + strLen - 1) == '\\' )
 		{
 			// trailing slash exists
-			if (( (*slash = (char *)calloc(strLen, sizeof(char))) != NULL) &&
+			if (( (*slash = (char *)calloc( (strLen + 1), sizeof(char))) != NULL) &&
 			    ( (*noSlash = (char *)calloc(strLen, sizeof(char))) != NULL))
 			{
 				strncpy(*slash, str, strLen);
@@ -280,7 +280,7 @@ bool slashify(char *str, char **slash, char **noSlash)
 		{
 			// no trailing slash exists
 			if ( ((*slash = (char *)calloc( (strLen + 2), sizeof(char))) != NULL) &&
-			     ((*noSlash = (char *)calloc( strLen, sizeof(char))) != NULL) )
+			     ((*noSlash = (char *)calloc( (strLen + 1), sizeof(char))) != NULL) )
 			{
 				strncpy(*noSlash, str, strLen);
 				sprintf(*slash, "%s\\", *noSlash);
