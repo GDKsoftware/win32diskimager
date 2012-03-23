@@ -16,7 +16,7 @@
  *                                                                    *
  *  ---                                                               *
  *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
- *  Copyright (C) 2009, 2011 ImageWriter developers                   *
+ *  Copyright (C) 2009, 2012 ImageWriter developers                   *
  *                           https://launchpad.net/~image-writer-devs *
  **********************************************************************/
 
@@ -32,14 +32,9 @@
 #include <windows.h>
 #include <winioctl.h>
 #include <dbt.h>
-//#include <QFile>
 #include "disk.h"
 #include "mainwindow.h"
 #include "md5.h"
-//#include <wincrypt.h>      // CryptoAPI definitions
-//#include <io.h>
-//#include <fcntl.h>
-//#include <sys\stat.h>
 
 extern QApplication *app;
 
@@ -53,11 +48,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	hVolume = INVALID_HANDLE_VALUE;
 	hFile = INVALID_HANDLE_VALUE;
 	hRawDisk = INVALID_HANDLE_VALUE;
-	if (QCoreApplication::arguments().count() == 1)
-	{
-		filelocation = NULL;
-	}
-	else
+	if (QCoreApplication::arguments().count() > 1)
 	{
 		QString filelocation = QApplication::arguments().at(1);
 		QFileInfo FileInfo = QFileInfo(filelocation);
@@ -86,11 +77,6 @@ MainWindow::~MainWindow()
 	{
 		CloseHandle(hVolume);
 		hVolume = INVALID_HANDLE_VALUE;
-	}
-	if (filelocation != NULL)
-	{
-		delete filelocation;
-		filelocation = NULL;
 	}
 	if (sectorData != NULL)
 	{
@@ -263,24 +249,18 @@ void MainWindow::on_bWrite_clicked()
 			unsigned long long i, lasti, availablesectors, numsectors;
 			int volumeID = cboxDevice->currentText().at(1).toAscii() - 'A';
 			int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
-			filelocation = new char[5 + leFile->text().length()];
-			sprintf(filelocation, "\\\\.\\%s", leFile->text().toAscii().data());
 			hVolume = getHandleOnVolume(volumeID, GENERIC_WRITE);
 			if (hVolume == INVALID_HANDLE_VALUE)
 			{
-				delete filelocation;
 				status = STATUS_IDLE;
-				filelocation = NULL;
 				bCancel->setEnabled(false);
 				setReadWriteButtonState();
 				return;
 			}
 			if (!getLockOnVolume(hVolume))
 			{
-				delete filelocation;
 				CloseHandle(hVolume);
 				status = STATUS_IDLE;
-				filelocation = NULL;
 				hVolume = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
 				setReadWriteButtonState();
@@ -288,24 +268,20 @@ void MainWindow::on_bWrite_clicked()
 			}
 			if (!unmountVolume(hVolume))
 			{
-				delete filelocation;
 				removeLockOnVolume(hVolume);
 				CloseHandle(hVolume);
 				status = STATUS_IDLE;
-				filelocation = NULL;
 				hVolume = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
 				setReadWriteButtonState();
 				return;
 			}
-			hFile = getHandleOnFile(filelocation, GENERIC_READ);
+			hFile = getHandleOnFile(leFile->text().toAscii().data(), GENERIC_READ);
 			if (hFile == INVALID_HANDLE_VALUE)
 			{
-				delete filelocation;
 				removeLockOnVolume(hVolume);
 				CloseHandle(hVolume);
 				status = STATUS_IDLE;
-				filelocation = NULL;
 				hVolume = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
 				setReadWriteButtonState();
@@ -314,12 +290,10 @@ void MainWindow::on_bWrite_clicked()
 			hRawDisk = getHandleOnDevice(deviceID, GENERIC_WRITE);
 			if (hRawDisk == INVALID_HANDLE_VALUE)
 			{
-				delete filelocation;
 				removeLockOnVolume(hVolume);
 				CloseHandle(hFile);
 				CloseHandle(hVolume);
 				status = STATUS_IDLE;
-				filelocation = NULL;
 				hVolume = INVALID_HANDLE_VALUE;
 				hFile = INVALID_HANDLE_VALUE;
 				bCancel->setEnabled(false);
@@ -331,13 +305,11 @@ void MainWindow::on_bWrite_clicked()
 			if (numsectors > availablesectors)
 			{
 				QMessageBox::critical(NULL, "Write Error", "Not enough space on disk.");
-				delete filelocation;
 				removeLockOnVolume(hVolume);
 				CloseHandle(hRawDisk);
 				CloseHandle(hFile);
 				CloseHandle(hVolume);
 				status = STATUS_IDLE;
-				filelocation = NULL;
 				hVolume = INVALID_HANDLE_VALUE;
 				hFile = INVALID_HANDLE_VALUE;
 				hRawDisk = INVALID_HANDLE_VALUE;
@@ -360,14 +332,12 @@ void MainWindow::on_bWrite_clicked()
 				sectorData = readSectorDataFromHandle(hFile, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
 				if (sectorData == NULL)
 				{
-					delete filelocation;
 					delete sectorData;
 					removeLockOnVolume(hVolume);
 					CloseHandle(hRawDisk);
 					CloseHandle(hFile);
 					CloseHandle(hVolume);
 					status = STATUS_IDLE;
-					filelocation = NULL;
 					sectorData = NULL;
 					hRawDisk = INVALID_HANDLE_VALUE;
 					hFile = INVALID_HANDLE_VALUE;
@@ -378,14 +348,12 @@ void MainWindow::on_bWrite_clicked()
 				}
 				if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
 				{
-					delete filelocation;
 					delete sectorData;
 					removeLockOnVolume(hVolume);
 					CloseHandle(hRawDisk);
 					CloseHandle(hFile);
 					CloseHandle(hVolume);
 					status = STATUS_IDLE;
-					filelocation = NULL;
 					sectorData = NULL;
 					hRawDisk = INVALID_HANDLE_VALUE;
 					hFile = INVALID_HANDLE_VALUE;
@@ -407,12 +375,10 @@ void MainWindow::on_bWrite_clicked()
 				progressbar->setValue(i);
 				QCoreApplication::processEvents();
 			}
-			delete filelocation;
 			removeLockOnVolume(hVolume);
 			CloseHandle(hRawDisk);
 			CloseHandle(hFile);
 			CloseHandle(hVolume);
-			filelocation = NULL;
 			sectorData = NULL;
 			hRawDisk = INVALID_HANDLE_VALUE;
 			hFile = INVALID_HANDLE_VALUE;
@@ -471,24 +437,18 @@ void MainWindow::on_bRead_clicked()
 		unsigned long long i, lasti, numsectors, filesize, spaceneeded = 0ull;
 		int volumeID = cboxDevice->currentText().at(1).toAscii() - 'A';
 		int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
-		filelocation = new char[5 + leFile->text().length()];
-		sprintf(filelocation, "\\\\.\\%s", leFile->text().toAscii().data());
 		hVolume = getHandleOnVolume(volumeID, GENERIC_READ);
 		if (hVolume == INVALID_HANDLE_VALUE)
 		{
-			delete filelocation;
 			status = STATUS_IDLE;
-			filelocation = NULL;
 			bCancel->setEnabled(false);
 			setReadWriteButtonState();
 			return;
 		}
 		if (!getLockOnVolume(hVolume))
 		{
-			delete filelocation;
 			CloseHandle(hVolume);
 			status = STATUS_IDLE;
-			filelocation = NULL;
 			hVolume = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
 			setReadWriteButtonState();
@@ -496,24 +456,20 @@ void MainWindow::on_bRead_clicked()
 		}
 		if (!unmountVolume(hVolume))
 		{
-			delete filelocation;
 			removeLockOnVolume(hVolume);
 			CloseHandle(hVolume);
 			status = STATUS_IDLE;
-			filelocation = NULL;
 			hVolume = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
 			setReadWriteButtonState();
 			return;
 		}
-		hFile = getHandleOnFile(filelocation, GENERIC_WRITE);
+		hFile = getHandleOnFile(leFile->text().toAscii().data(), GENERIC_WRITE);
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
-			delete filelocation;
 			removeLockOnVolume(hVolume);
 			CloseHandle(hVolume);
 			status = STATUS_IDLE;
-			filelocation = NULL;
 			hVolume = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
 			setReadWriteButtonState();
@@ -522,12 +478,10 @@ void MainWindow::on_bRead_clicked()
 		hRawDisk = getHandleOnDevice(deviceID, GENERIC_READ);
 		if (hRawDisk == INVALID_HANDLE_VALUE)
 		{
-			delete filelocation;
 			removeLockOnVolume(hVolume);
 			CloseHandle(hFile);
 			CloseHandle(hVolume);
 			status = STATUS_IDLE;
-			filelocation = NULL;
 			hVolume = INVALID_HANDLE_VALUE;
 			hFile = INVALID_HANDLE_VALUE;
 			bCancel->setEnabled(false);
@@ -547,13 +501,11 @@ void MainWindow::on_bRead_clicked()
 		if (!spaceAvailable(leFile->text().left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
 		{
 			QMessageBox::critical(NULL, "Write Error", "Disk is not large enough for the specified image.");
-			delete filelocation;
 			removeLockOnVolume(hVolume);
 			CloseHandle(hRawDisk);
 			CloseHandle(hFile);
 			CloseHandle(hVolume);
 			status = STATUS_IDLE;
-			filelocation = NULL;
 			sectorData = NULL;
 			hRawDisk = INVALID_HANDLE_VALUE;
 			hFile = INVALID_HANDLE_VALUE;
@@ -577,14 +529,12 @@ void MainWindow::on_bRead_clicked()
 			sectorData = readSectorDataFromHandle(hRawDisk, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
 			if (sectorData == NULL)
 			{
-				delete filelocation;
 				delete sectorData;
 				removeLockOnVolume(hVolume);
 				CloseHandle(hRawDisk);
 				CloseHandle(hFile);
 				CloseHandle(hVolume);
 				status = STATUS_IDLE;
-				filelocation = NULL;
 				sectorData = NULL;
 				hRawDisk = INVALID_HANDLE_VALUE;
 				hFile = INVALID_HANDLE_VALUE;
@@ -595,14 +545,12 @@ void MainWindow::on_bRead_clicked()
 			}
 			if (!writeSectorDataToHandle(hFile, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
 			{
-				delete filelocation;
 				delete sectorData;
 				removeLockOnVolume(hVolume);
 				CloseHandle(hRawDisk);
 				CloseHandle(hFile);
 				CloseHandle(hVolume);
 				status = STATUS_IDLE;
-				filelocation = NULL;
 				sectorData = NULL;
 				hRawDisk = INVALID_HANDLE_VALUE;
 				hFile = INVALID_HANDLE_VALUE;
@@ -623,12 +571,10 @@ void MainWindow::on_bRead_clicked()
 			progressbar->setValue(i);
 			QCoreApplication::processEvents();
 		}
-		delete filelocation;
 		removeLockOnVolume(hVolume);
 		CloseHandle(hRawDisk);
 		CloseHandle(hFile);
 		CloseHandle(hVolume);
-		filelocation = NULL;
 		sectorData = NULL;
 		hRawDisk = INVALID_HANDLE_VALUE;
 		hFile = INVALID_HANDLE_VALUE;

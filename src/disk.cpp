@@ -35,8 +35,11 @@
 HANDLE getHandleOnFile(char *filelocation, DWORD access)
 {
 	HANDLE hFile;
-	char *location = new char[5 + strlen(filelocation)];
-	sprintf(location, "\\\\.\\%s", filelocation);
+	char *hdr = "\\\\.\\";
+	int locLen = strlen(hdr) + strlen(filelocation) + 1;
+	char *location = new char[locLen];
+	memset(location, 0, locLen);
+	sprintf(location, "%s%s", hdr, filelocation);
 	hFile = CreateFile(location, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
@@ -46,6 +49,7 @@ HANDLE getHandleOnFile(char *filelocation, DWORD access)
 		LocalFree(errormessage);
 	}
 	delete location;
+	location = NULL;
 	return hFile;
 }
 

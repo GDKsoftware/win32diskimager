@@ -62,7 +62,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		HANDLE hRawDisk;
 		unsigned long long sectorsize;
 		int status;
-		char *filelocation;
 		char *sectorData;
 		QTime timer;
 		void generateMd5(char *filename);
