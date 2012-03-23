@@ -36,8 +36,6 @@
 #include "mainwindow.h"
 #include "md5.h"
 
-extern QApplication *app;
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	setupUi(this);

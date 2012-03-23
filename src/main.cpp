@@ -32,12 +32,10 @@
 #include "disk.h"
 #include "mainwindow.h"
 
-QApplication *app;
-
 int main(int argc, char *argv[])
 {
 	MainWindow *mainwindow;
-	app = new QApplication(argc, argv);
+	QApplication *app = new QApplication(argc, argv);
 	mainwindow = new MainWindow;
 	mainwindow->show();
 	return app->exec();
