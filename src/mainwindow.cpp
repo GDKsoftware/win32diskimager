@@ -51,8 +51,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	if (QCoreApplication::arguments().count() > 1)
 	{
 		QString filelocation = QApplication::arguments().at(1);
-		QFileInfo FileInfo = QFileInfo(filelocation);
-		leFile->setText(FileInfo.absoluteFilePath());
+		QFileInfo fileInfo(filelocation);
+		leFile->setText(fileInfo.absoluteFilePath());
 	}
 
 	setReadWriteButtonState();
@@ -304,7 +304,7 @@ void MainWindow::on_bWrite_clicked()
 			numsectors = getFileSizeInSectors(hFile, sectorsize);
 			if (numsectors > availablesectors)
 			{
-				QMessageBox::critical(NULL, "Write Error", "Not enough space on disk.");
+				QMessageBox::critical(NULL, "Write Error", QString("Not enough space on disk: Size: %1 sectors  Available: %2 sectors  Sector size: %3").arg(numsectors).arg(availablesectors).arg(sectorsize));
 				removeLockOnVolume(hVolume);
 				CloseHandle(hRawDisk);
 				CloseHandle(hFile);
@@ -317,14 +317,8 @@ void MainWindow::on_bWrite_clicked()
 				setReadWriteButtonState();
 				return;
 			}
-			if (numsectors == 0ul)
-			{
-				progressbar->setRange(0, 100);
-			}
-			else
-			{
-				progressbar->setRange(0, (int)numsectors);
-			}
+
+			progressbar->setRange(0, (numsectors == 0ul) ? 100 : (int)numsectors);
 			lasti = 0ul;
 			timer.start();
 			for (i = 0ul; i < numsectors && status == STATUS_WRITING; i += 1024ul)
@@ -400,6 +394,7 @@ void MainWindow::on_bWrite_clicked()
 		statusbar->showMessage("Done.");
 		bCancel->setEnabled(false);
 		setReadWriteButtonState();
+		QMessageBox::information(NULL, "Complete", "Write Successful.");
 	}
 	else
 	{
@@ -564,7 +559,7 @@ void MainWindow::on_bRead_clicked()
 			if (timer.elapsed() >= 1000)
 			{
 				mbpersec = (((double)sectorsize * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
-                                statusbar->showMessage(QString("%1MB/s").arg(mbpersec));
+				statusbar->showMessage(QString("%1MB/s").arg(mbpersec));
 				timer.start();
 				lasti = i;
 			}
@@ -580,9 +575,10 @@ void MainWindow::on_bRead_clicked()
 		hFile = INVALID_HANDLE_VALUE;
 		hVolume = INVALID_HANDLE_VALUE;
 		progressbar->reset();
-	  statusbar->showMessage("Done.");
+		statusbar->showMessage("Done.");
 		bCancel->setEnabled(false);
 		setReadWriteButtonState();
+		QMessageBox::information(NULL, "Complete", "Read Successful.");
 	}
 	else
 	{

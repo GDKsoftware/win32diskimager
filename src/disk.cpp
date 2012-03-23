@@ -35,7 +35,8 @@
 HANDLE getHandleOnFile(char *filelocation, DWORD access)
 {
 	HANDLE hFile;
-	char *hdr = "\\\\.\\";
+	char hdr[] = "\\\\.\\";
+				// 'char *hdr = "foo"' gives a warning about string conversion
 	int locLen = strlen(hdr) + strlen(filelocation) + 1;
 	char *location = new char[locLen];
 	memset(location, 0, locLen);
@@ -126,7 +127,7 @@ bool unmountVolume(HANDLE handle)
 		QMessageBox::critical(NULL, "Dismount Error", QString("An error occurred when attempting to dismount the volume.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
-	return (bResult == TRUE);
+	return (bResult);
 }
 
 bool isVolumeUnmounted(HANDLE handle)
@@ -189,15 +190,30 @@ unsigned long long getNumberOfSectors(HANDLE handle, unsigned long long *sectors
 		return 0;
 	}
 	if (sectorsize != NULL)
+	{
   		*sectorsize = (unsigned long long)diskgeometry.Geometry.BytesPerSector;
+	}
  	return (unsigned long long)diskgeometry.DiskSize.QuadPart / (unsigned long long)diskgeometry.Geometry.BytesPerSector;
 }
 
 unsigned long long getFileSizeInSectors(HANDLE handle, unsigned long long sectorsize)
 {
+	unsigned long long retVal = 0;
 	LARGE_INTEGER filesize;
-	GetFileSizeEx(handle, &filesize);
-	return ((unsigned long long)filesize.QuadPart / sectorsize );
+	if(GetFileSizeEx(handle, &filesize) == 0)
+	{
+		// error
+		char *errormessage=NULL;
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPSTR)&errormessage, 0, NULL);
+		QMessageBox::critical(NULL, "File Error", QString("An error occurred while getting the file size.\nError %1: %2").arg(GetLastError()).arg(errormessage));
+		LocalFree(errormessage);
+		retVal = 0;
+	}
+	else
+	{
+		retVal = ((unsigned long long)filesize.QuadPart / sectorsize );
+	}
+	return(retVal);
 }
 
 bool spaceAvailable(char *location, unsigned long long spaceneeded)
@@ -241,7 +257,7 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
 			retVal = false;
 			char *errormessage=NULL;
 			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPSTR)&errormessage, 0, NULL);
-			QMessageBox::critical(NULL, "File Error", QString("An error occurred while accessing the device.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
+			QMessageBox::critical(NULL, "File Error", QString("An error occurred while getting the device number.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
 			LocalFree(errormessage);
 		}
 	}
@@ -250,7 +266,7 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
 		retVal = false;
 		char *errormessage=NULL;
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPSTR)&errormessage, 0, NULL);
-		QMessageBox::critical(NULL, "File Error", QString("An error occurred while accessing the device.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
+		QMessageBox::critical(NULL, "File Error", QString("An error occurred while querying the properties.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
 
