@@ -169,7 +169,7 @@ bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long long start
 	{
 		char *errormessage=NULL;
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPSTR)&errormessage, 0, NULL);
-		QMessageBox::critical(NULL, "Write Error", QString("An error occurred when attempting to write data from handle.\nError %1: %2").arg(GetLastError()).arg(errormessage));
+		QMessageBox::critical(NULL, "Write Error", QString("An error occurred when attempting to write data to handle.\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
 	}
 	return (bResult);
@@ -229,6 +229,27 @@ bool spaceAvailable(char *location, unsigned long long spaceneeded)
 		return true;
 	}
 	return (spaceneeded <= freespace.QuadPart);
+}
+
+// given a drive letter (ending in a slash), return the label for that drive
+//   returns NULL if there was a problem, or the empty string if there's
+//   no label to be gotten
+//   TODO make this more robust by adding input verification
+// Caller must free returned string
+char *getDriveLabel(const char *drv)
+{
+	int szNameBuf = MAX_PATH + 1;
+	char *nameBuf = NULL;
+	if( (nameBuf = (char *)calloc(szNameBuf, sizeof(char))) != 0 )
+	{
+		::GetVolumeInformationA(drv, nameBuf, szNameBuf, NULL,
+					NULL, NULL, NULL, NULL);
+	}
+
+	// if malloc fails, nameBuf will be NULL.
+	//   if GetVolumeInfo fails, nameBuf will contain empty string
+	//   if all succeeds, nameBuf will contain label
+	return(nameBuf);
 }
 
 BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,

@@ -232,13 +232,28 @@ void MainWindow::on_bWrite_clicked()
 		{
 			if (leFile->text().at(0) == cboxDevice->currentText().at(1))
 			{
-				QMessageBox::critical(NULL, "Write Error", "Image file cannot be located on the requested device.");
+				QMessageBox::critical(NULL, "Write Error", "Image file cannot be located on the target device.");
 				return;
 			}
-			if (QMessageBox::warning(NULL, "Confirm overwrite", "Writing to a physical device can corrupt the device.\nAre you sure you want to continue?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+
+			// build the drive letter as a const char *
+			//   (without the surrounding brackets)
+			QString qs = cboxDevice->currentText();
+			qs.replace(QRegExp("[\\[\\]]"), "");
+			QByteArray qba = qs.toLocal8Bit();
+			const char *ltr = qba.data();
+			if(ltr == NULL)
 			{
+				// there was a problem getting the label -
+				// 		just create an empty string
+				ltr = "\0";
+			}
+			if (QMessageBox::warning(NULL, "Confirm overwrite", QString("Writing to a physical device can corrupt the device.\n(Target Device: %1 \"%2\")\nAre you sure you want to continue?").arg(cboxDevice->currentText()).arg(getDriveLabel(ltr)), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+			{
+				free((void *)ltr);
 				return;
 			}
+			free((void *)ltr);
 			status = STATUS_WRITING;
 			bCancel->setEnabled(true);
 			bWrite->setEnabled(false);
@@ -412,7 +427,7 @@ void MainWindow::on_bRead_clicked()
 		QFileInfo fileinfo(leFile->text());
 		if (leFile->text().at(0) == cboxDevice->currentText().at(1))
 		{
-			QMessageBox::critical(NULL, "Write Error", "Image file cannot be located on the requested device.");
+			QMessageBox::critical(NULL, "Write Error", "Image file cannot be located on the target device.");
 			return;
 		}
 		if (fileinfo.exists())

@@ -1,5 +1,5 @@
 Image Writer for Microsoft Windows
-Release 0.4 (r31) - The "2011 End of Year" release
+Release 0.6 (r46) - The "Tax Free" release
 ===
 About:
 This utility is used to write Ubuntu img files to SD and USB cards.
