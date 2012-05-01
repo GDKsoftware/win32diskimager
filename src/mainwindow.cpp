@@ -242,22 +242,10 @@ void MainWindow::on_bWrite_clicked()
 			qs.replace(QRegExp("[\\[\\]]"), "");
 			QByteArray qba = qs.toLocal8Bit();
 			const char *ltr = qba.data();
-			char *label = getDriveLabel(ltr);
-				// don't just pass "getDriveLabel" as arg to QString in
-				//   the warning MessageBox below (where "label" is used)
-				//   b/c we have to free the returned value
-			if(label == NULL)
+			if (QMessageBox::warning(NULL, "Confirm overwrite", QString("Writing to a physical device can corrupt the device.\n(Target Device: %1 \"%2\")\nAre you sure you want to continue?").arg(cboxDevice->currentText()).arg(getDriveLabel(ltr)), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
 			{
-				// there was a problem getting the label -
-				// 		just create an empty string
-				label = '\0';
-			}
-			if (QMessageBox::warning(NULL, "Confirm overwrite", QString("Writing to a physical device can corrupt the device.\n(Target Device: %1 \"%2\")\nAre you sure you want to continue?").arg(cboxDevice->currentText()).arg(label), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
-			{
-				free(label);
 				return;
 			}
-			free(label);
 			status = STATUS_WRITING;
 			bCancel->setEnabled(true);
 			bWrite->setEnabled(false);

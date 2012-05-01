@@ -232,12 +232,10 @@ bool spaceAvailable(char *location, unsigned long long spaceneeded)
 }
 
 // given a drive letter (ending in a slash), return the label for that drive
-//   returns NULL if there was a problem, or the empty string if there's
-//   no label to be gotten
 //   TODO make this more robust by adding input verification
-// Caller must free returned string
-char *getDriveLabel(const char *drv)
+QString getDriveLabel(const char *drv)
 {
+	QString retVal;
 	int szNameBuf = MAX_PATH + 1;
 	char *nameBuf = NULL;
 	if( (nameBuf = (char *)calloc(szNameBuf, sizeof(char))) != 0 )
@@ -249,7 +247,17 @@ char *getDriveLabel(const char *drv)
 	// if malloc fails, nameBuf will be NULL.
 	//   if GetVolumeInfo fails, nameBuf will contain empty string
 	//   if all succeeds, nameBuf will contain label
-	return(nameBuf);
+	if(nameBuf == NULL)
+	{
+		retVal = QString("");
+	}
+	else
+	{
+		retVal = QString(nameBuf);
+		free(nameBuf);
+	}
+
+	return(retVal);
 }
 
 BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,

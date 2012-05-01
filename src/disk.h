@@ -28,6 +28,7 @@
 #endif
 
 #include <QtGui>
+#include <QString>
 #include <cstdio>
 #include <cstdlib>
 #include <windows.h>
@@ -92,7 +93,7 @@ typedef struct _STORAGE_PROPERTY_QUERY
 HANDLE getHandleOnFile(char *filelocation, DWORD access);
 HANDLE getHandleOnDevice(int device, DWORD access);
 HANDLE getHandleOnVolume(int volume, DWORD access);
-char *getDriveLabel(const char *drv);
+QString getDriveLabel(const char *drv);
 bool getLockOnVolume(HANDLE handle);
 bool removeLockOnVolume(HANDLE handle);
 bool unmountVolume(HANDLE handle);
