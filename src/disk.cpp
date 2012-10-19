@@ -241,7 +241,7 @@ QString getDriveLabel(const char *drv)
 	if( (nameBuf = (char *)calloc(szNameBuf, sizeof(char))) != 0 )
 	{
 		::GetVolumeInformationA(drv, nameBuf, szNameBuf, NULL,
-					NULL, NULL, NULL, NULL);
+                                        NULL, NULL, NULL, 0);
 	}
 
 	// if malloc fails, nameBuf will be NULL.
@@ -267,6 +267,7 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
 	DWORD dwOutBytes; // IOCTL output length
 	BOOL bResult; // IOCTL return val
 	BOOL retVal = true;
+        DWORD cbBytesReturned;
 
 	// specify the query type
 	Query.PropertyId = StorageDeviceProperty;
@@ -292,12 +293,15 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
 	}
 	else
 	{
-		retVal = false;
+            if(DeviceIoControl (hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL)) {
+
 		char *errormessage=NULL;
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPSTR)&errormessage, 0, NULL);
-		QMessageBox::critical(NULL, "File Error", QString("An error occurred while querying the properties.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
+                QMessageBox::critical(NULL, "File Error", QString("An error occurred while querying the properties.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
 		LocalFree(errormessage);
-	}
+            }
+            retVal = false;
+        }
 
 	return(retVal);
 }
@@ -349,7 +353,8 @@ bool checkDriveType(char *name, ULONG *pid)
 	bool retVal = false;
 	char *nameWithSlash;
 	char *nameNoSlash;
-	int driveType;
+        int driveType;
+        DWORD cbBytesReturned;
 
 	// some calls require no tailing slash, some require a trailing slash...
 	//   wheeeeeeeeeee.............
@@ -380,11 +385,12 @@ bool checkDriveType(char *name, ULONG *pid)
 			
 				// get the device number if the drive is
 				// removable or (fixed AND on the usb bus)
-				if(GetDisksProperty(hDevice, pDevDesc, &deviceInfo) && ( (driveType == DRIVE_REMOVABLE) || ( (driveType == DRIVE_FIXED) && (pDevDesc->BusType == BusTypeUsb)) ) )
+                                if(GetDisksProperty(hDevice, pDevDesc, &deviceInfo) &&
+                                   ( ((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))
+                                    || ( (driveType == DRIVE_FIXED) && (pDevDesc->BusType == BusTypeUsb)) ) )
 				{
 					// ensure that the drive is actually accessible
 					// multi-card hubs were reporting "removable" even when empty
-					DWORD cbBytesReturned;
 					if(DeviceIoControl (hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
 					{
 						*pid = deviceInfo.DeviceNumber;
