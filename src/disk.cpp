@@ -384,10 +384,10 @@ bool checkDriveType(char *name, ULONG *pid)
 				pDevDesc->Size = arrSz;
 			
 				// get the device number if the drive is
-				// removable or (fixed AND on the usb bus)
+                                // removable or (fixed AND on the usb bus, SD, or MMC (undefined in XP/mingw))
                                 if(GetDisksProperty(hDevice, pDevDesc, &deviceInfo) &&
-                                   ( ((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))
-                                    || ( (driveType == DRIVE_FIXED) && (pDevDesc->BusType == BusTypeUsb)) ) )
+                                   ( ((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))                              
+                                    || ( (driveType == DRIVE_FIXED) && ((pDevDesc->BusType == BusTypeUsb) || (pDevDesc->BusType == 0xC) || (pDevDesc->BusType == 0xD)) ) ) )
 				{
 					// ensure that the drive is actually accessible
 					// multi-card hubs were reporting "removable" even when empty
