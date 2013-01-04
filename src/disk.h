@@ -39,9 +39,9 @@
 
 typedef struct _DEVICE_NUMBER
 {
-	DEVICE_TYPE  DeviceType;
-	ULONG  DeviceNumber;
-	ULONG  PartitionNumber;
+    DEVICE_TYPE  DeviceType;
+    ULONG  DeviceNumber;
+    ULONG  PartitionNumber;
 } DEVICE_NUMBER, *PDEVICE_NUMBER;
 
 // IOCTL control code
@@ -50,44 +50,44 @@ typedef struct _DEVICE_NUMBER
 // retrieve the storage device descriptor data for a device.
 typedef struct _STORAGE_DEVICE_DESCRIPTOR
 {
-	ULONG  Version;
-	ULONG  Size;
-	UCHAR  DeviceType;
-	UCHAR  DeviceTypeModifier;
-	BOOLEAN  RemovableMedia;
-	BOOLEAN  CommandQueueing;
-	ULONG  VendorIdOffset;
-	ULONG  ProductIdOffset;
-	ULONG  ProductRevisionOffset;
-	ULONG  SerialNumberOffset;
-	STORAGE_BUS_TYPE  BusType;
-	ULONG  RawPropertiesLength;
-	UCHAR  RawDeviceProperties[1];
+    ULONG  Version;
+    ULONG  Size;
+    UCHAR  DeviceType;
+    UCHAR  DeviceTypeModifier;
+    BOOLEAN  RemovableMedia;
+    BOOLEAN  CommandQueueing;
+    ULONG  VendorIdOffset;
+    ULONG  ProductIdOffset;
+    ULONG  ProductRevisionOffset;
+    ULONG  SerialNumberOffset;
+    STORAGE_BUS_TYPE  BusType;
+    ULONG  RawPropertiesLength;
+    UCHAR  RawDeviceProperties[1];
 } STORAGE_DEVICE_DESCRIPTOR, *PSTORAGE_DEVICE_DESCRIPTOR;
 
 // retrieve the properties of a storage device or adapter.
 typedef enum _STORAGE_QUERY_TYPE
 {
-	PropertyStandardQuery = 0,
-	PropertyExistsQuery,
-	PropertyMaskQuery,
-	PropertyQueryMaxDefined
+    PropertyStandardQuery = 0,
+    PropertyExistsQuery,
+    PropertyMaskQuery,
+    PropertyQueryMaxDefined
 } STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
 
 // retrieve the properties of a storage device or adapter.
 typedef enum _STORAGE_PROPERTY_ID
 {
-	StorageDeviceProperty = 0,
-	StorageAdapterProperty,
-	StorageDeviceIdProperty
+    StorageDeviceProperty = 0,
+    StorageAdapterProperty,
+    StorageDeviceIdProperty
 } STORAGE_PROPERTY_ID, *PSTORAGE_PROPERTY_ID;
 
 // retrieve the properties of a storage device or adapter.
 typedef struct _STORAGE_PROPERTY_QUERY
 {
-	STORAGE_PROPERTY_ID  PropertyId;
-	STORAGE_QUERY_TYPE  QueryType;
-	UCHAR  AdditionalParameters[1];
+    STORAGE_PROPERTY_ID  PropertyId;
+    STORAGE_QUERY_TYPE  QueryType;
+    UCHAR  AdditionalParameters[1];
 } STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
 
 HANDLE getHandleOnFile(char *filelocation, DWORD access);

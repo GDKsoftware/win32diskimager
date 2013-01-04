@@ -36,13 +36,13 @@ HANDLE getHandleOnFile(char *filelocation, DWORD access)
 {
 	HANDLE hFile;
 	char hdr[] = "\\\\.\\";
-				// 'char *hdr = "foo"' gives a warning about string conversion
+    // 'char *hdr = "foo"' gives a warning about string conversion
 	int locLen = strlen(hdr) + strlen(filelocation) + 1;
 	char *location = new char[locLen];
 	memset(location, 0, locLen);
 	sprintf(location, "%s%s", hdr, filelocation);
 	hFile = CreateFile(location, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
+    if (hFile == INVALID_HANDLE_VALUE)
 	{
 		char *errormessage=NULL;
         FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
@@ -232,7 +232,7 @@ bool spaceAvailable(char *location, unsigned long long spaceneeded)
 }
 
 // given a drive letter (ending in a slash), return the label for that drive
-//   TODO make this more robust by adding input verification
+// TODO make this more robust by adding input verification
 QString getDriveLabel(const char *drv)
 {
 	QString retVal;
@@ -261,13 +261,13 @@ QString getDriveLabel(const char *drv)
 }
 
 BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
-						DEVICE_NUMBER *devInfo)
+                      DEVICE_NUMBER *devInfo)
 {
 	STORAGE_PROPERTY_QUERY Query; // input param for query
 	DWORD dwOutBytes; // IOCTL output length
 	BOOL bResult; // IOCTL return val
 	BOOL retVal = true;
-        DWORD cbBytesReturned;
+    DWORD cbBytesReturned;
 
 	// specify the query type
 	Query.PropertyId = StorageDeviceProperty;
@@ -276,7 +276,7 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
 	// Query using IOCTL_STORAGE_QUERY_PROPERTY 
 	bResult = ::DeviceIoControl(hDevice, IOCTL_STORAGE_QUERY_PROPERTY,
 				&Query, sizeof(STORAGE_PROPERTY_QUERY), pDevDesc,
-				pDevDesc->Size, &dwOutBytes, (LPOVERLAPPED)NULL); 
+                pDevDesc->Size, &dwOutBytes, (LPOVERLAPPED)NULL);
 	if (bResult)
 	{
 		bResult = ::DeviceIoControl(hDevice, IOCTL_STORAGE_GET_DEVICE_NUMBER,
@@ -293,15 +293,16 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
 	}
 	else
 	{
-            if(DeviceIoControl (hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL)) {
-
-		char *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-                QMessageBox::critical(NULL, "File Error", QString("An error occurred while querying the properties.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
-		LocalFree(errormessage);
-            }
-            retVal = false;
+        if (DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned,
+                            (LPOVERLAPPED) NULL))
+        {
+            char *errormessage=NULL;
+            FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
+            QMessageBox::critical(NULL, "File Error", QString("An error occurred while querying the properties.\nThis usually means something is currently accessing the device; please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errormessage));
+            LocalFree(errormessage);
         }
+            retVal = false;
+    }
 
 	return(retVal);
 }
@@ -313,103 +314,99 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
 // 		CALLER MUST FREE THE 2 RETURNED STRINGS
 bool slashify(char *str, char **slash, char **noSlash)
 {
-	bool retVal = false;
-
-	int strLen = strlen(str);
-	if ( strLen > 0 )
-	{
-		if ( *(str + strLen - 1) == '\\' )
-		{
-			// trailing slash exists
-			if (( (*slash = (char *)calloc( (strLen + 1), sizeof(char))) != NULL) &&
-			    ( (*noSlash = (char *)calloc(strLen, sizeof(char))) != NULL))
-			{
-				strncpy(*slash, str, strLen);
-				strncpy(*noSlash, *slash, (strLen - 1));
-				retVal = true;
-			}
-		}
-		else
-		{
-			// no trailing slash exists
-			if ( ((*slash = (char *)calloc( (strLen + 2), sizeof(char))) != NULL) &&
-			     ((*noSlash = (char *)calloc( (strLen + 1), sizeof(char))) != NULL) )
-			{
-				strncpy(*noSlash, str, strLen);
-				sprintf(*slash, "%s\\", *noSlash);
-				retVal = true;
-			}
-		}
-	}
-
-	return(retVal);
+    bool retVal = false;
+    int strLen = strlen(str);
+    if ( strLen > 0 )
+    {
+        if ( *(str + strLen - 1) == '\\' )
+        {
+            // trailing slash exists
+            if (( (*slash = (char *)calloc( (strLen + 1), sizeof(char))) != NULL) &&
+                    ( (*noSlash = (char *)calloc(strLen, sizeof(char))) != NULL))
+            {
+                strncpy(*slash, str, strLen);
+                strncpy(*noSlash, *slash, (strLen - 1));
+                retVal = true;
+            }
+        }
+        else
+        {
+            // no trailing slash exists
+            if ( ((*slash = (char *)calloc( (strLen + 2), sizeof(char))) != NULL) &&
+                 ((*noSlash = (char *)calloc( (strLen + 1), sizeof(char))) != NULL) )
+            {
+                strncpy(*noSlash, str, strLen);
+                sprintf(*slash, "%s\\", *noSlash);
+                retVal = true;
+            }
+        }
+    }
+    return(retVal);
 }
 
 bool checkDriveType(char *name, ULONG *pid)
 {
-	HANDLE                  hDevice;
-	PSTORAGE_DEVICE_DESCRIPTOR pDevDesc;
-	DEVICE_NUMBER deviceInfo;
-	bool retVal = false;
-	char *nameWithSlash;
-	char *nameNoSlash;
-        int driveType;
-        DWORD cbBytesReturned;
+    HANDLE hDevice;
+    PSTORAGE_DEVICE_DESCRIPTOR pDevDesc;
+    DEVICE_NUMBER deviceInfo;
+    bool retVal = false;
+    char *nameWithSlash;
+    char *nameNoSlash;
+    int driveType;
+    DWORD cbBytesReturned;
 
-	// some calls require no tailing slash, some require a trailing slash...
-	//   wheeeeeeeeeee.............
-	if ( !(slashify(name, &nameWithSlash, &nameNoSlash)) )
-	{
-		return(retVal);
-	}
+    // some calls require no tailing slash, some require a trailing slash...
+    if ( !(slashify(name, &nameWithSlash, &nameNoSlash)) )
+    {
+        return(retVal);
+    }
 
-	driveType = GetDriveType(nameWithSlash);
-	switch( driveType )
-	{
-		case DRIVE_REMOVABLE: // The media can be removed from the drive.
- 		case DRIVE_FIXED:     // The media cannot be removed from the drive.
-			hDevice = CreateFile(nameNoSlash, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-			if (hDevice == INVALID_HANDLE_VALUE)
-			{
-				char *errormessage=NULL;
-                FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-				QMessageBox::critical(NULL, "Volume Error", QString("An error occurred when attempting to get a handle on %3.\nError %1: %2").arg(GetLastError()).arg(errormessage).arg(nameWithSlash));
-				LocalFree(errormessage);
-			}
-			else
-			{
-				int arrSz = sizeof(STORAGE_DEVICE_DESCRIPTOR) + 512 - 1;
-				pDevDesc = (PSTORAGE_DEVICE_DESCRIPTOR)new BYTE[arrSz];
+    driveType = GetDriveType(nameWithSlash);
+    switch( driveType )
+    {
+    case DRIVE_REMOVABLE: // The media can be removed from the drive.
+    case DRIVE_FIXED:     // The media cannot be removed from the drive.
+        hDevice = CreateFile(nameNoSlash, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+        if (hDevice == INVALID_HANDLE_VALUE)
+        {
+            char *errormessage=NULL;
+            FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
+            QMessageBox::critical(NULL, "Volume Error", QString("An error occurred when attempting to get a handle on %3.\nError %1: %2").arg(GetLastError()).arg(errormessage).arg(nameWithSlash));
+            LocalFree(errormessage);
+        }
+        else
+        {
+            int arrSz = sizeof(STORAGE_DEVICE_DESCRIPTOR) + 512 - 1;
+            pDevDesc = (PSTORAGE_DEVICE_DESCRIPTOR)new BYTE[arrSz];
+            pDevDesc->Size = arrSz;
 
-				pDevDesc->Size = arrSz;
-			
-				// get the device number if the drive is
-                                // removable or (fixed AND on the usb bus, SD, or MMC (undefined in XP/mingw))
-                                if(GetDisksProperty(hDevice, pDevDesc, &deviceInfo) &&
-                                   ( ((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))                              
-                                    || ( (driveType == DRIVE_FIXED) && ((pDevDesc->BusType == BusTypeUsb) || (pDevDesc->BusType == 0xC) || (pDevDesc->BusType == 0xD)) ) ) )
-				{
-					// ensure that the drive is actually accessible
-					// multi-card hubs were reporting "removable" even when empty
-					if(DeviceIoControl (hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
-					{
-						*pid = deviceInfo.DeviceNumber;
-						retVal = true;
-					}
-				}
+            // get the device number if the drive is
+            // removable or (fixed AND on the usb bus, SD, or MMC (undefined in XP/mingw))
+            if(GetDisksProperty(hDevice, pDevDesc, &deviceInfo) &&
+                    ( ((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))
+                      || ( (driveType == DRIVE_FIXED) && ((pDevDesc->BusType == BusTypeUsb) || (pDevDesc->BusType == 0xC) || (pDevDesc->BusType == 0xD)) ) ) )
+            {
+                // ensure that the drive is actually accessible
+                // multi-card hubs were reporting "removable" even when empty
+                if(DeviceIoControl (hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
+                {
+                    *pid = deviceInfo.DeviceNumber;
+                    retVal = true;
+                }
+            }
 
-				delete pDevDesc;
-				CloseHandle(hDevice);
-			}
-			
- 			break;
-		default:
-			retVal = false;
-	}
+            delete pDevDesc;
+            CloseHandle(hDevice);
+        }
 
-	// free the strings allocated by slashify
-	free(nameWithSlash);
-	free(nameNoSlash);
+        break;
+    default:
+        retVal = false;
+    }
 
-	return(retVal);
+    // free the strings allocated by slashify
+    free(nameWithSlash);
+    free(nameNoSlash);
+
+    return(retVal);
 }

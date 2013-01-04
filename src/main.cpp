@@ -34,9 +34,9 @@
 
 int main(int argc, char *argv[])
 {
-	MainWindow *mainwindow;
-	QApplication *app = new QApplication(argc, argv);
-	mainwindow = new MainWindow;
-	mainwindow->show();
-	return app->exec();
+    MainWindow *mainwindow;
+    QApplication *app = new QApplication(argc, argv);
+    mainwindow = new MainWindow;
+    mainwindow->show();
+    return app->exec();
 }
