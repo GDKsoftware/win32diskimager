@@ -7,10 +7,4 @@
                 </v3:requestedPrivileges>
             </v3:security>
         </v3:trustInfo>
-        <dependency>
-            <dependentAssembly>
-                <assemblyIdentity type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0.'
-                    publickKeyToken='659b64144ccf1df' language='*' processorArchitecture='*' />
-            </dependentAssembly>
-        </dependency>
     </assembly>

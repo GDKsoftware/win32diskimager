@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,4
- PRODUCTVERSION 0,0,0,4
+ FILEVERSION 0,6,0,0
+ PRODUCTVERSION 0,6,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -71,12 +71,12 @@ BEGIN
         BEGIN
             VALUE "Comments", "Image Writer for Windows to write USB and SD images"
             VALUE "FileDescription", "DiskImag"
-            VALUE "FileVersion", "0, 0, 0, 4"
+            VALUE "FileVersion", "0, 6, 0, 0"
             VALUE "InternalName", "win32-image-writer"
-            VALUE "LegalCopyright", "Copyright (C) 2009 Windows ImageWriter Team"
+            VALUE "LegalCopyright", "Copyright (C) 2009-2013 Windows ImageWriter Team"
             VALUE "OriginalFilename", "Win32DiskImager"
             VALUE "ProductName", "Win32 Image Writer"
-            VALUE "ProductVersion", "0, 0, 0, 4"
+            VALUE "ProductVersion", "0, 6, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
