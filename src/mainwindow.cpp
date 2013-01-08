@@ -32,6 +32,7 @@
 #include <windows.h>
 #include <winioctl.h>
 #include <dbt.h>
+
 #include "disk.h"
 #include "mainwindow.h"
 #include "md5.h"
@@ -97,7 +98,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (status == STATUS_READING)
     {
-        if (QMessageBox::warning(NULL, "Exit?", "Exiting now will result in a corrupt image file.\nAre you sure you want to exit?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+        if (QMessageBox::warning(NULL, tr("Exit?"), tr("Exiting now will result in a corrupt image file.\n"
+                                                       "Are you sure you want to exit?"),
+                                 QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
         {
             status = STATUS_EXIT;
         }
@@ -105,7 +108,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
     else if (status == STATUS_WRITING)
     {
-        if (QMessageBox::warning(NULL, "Exit?", "Exiting now will result in a corrupt disk.\nAre you sure you want to exit?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+        if (QMessageBox::warning(NULL, tr("Exit?"), tr("Exiting now will result in a corrupt disk.\n"
+                                                       "Are you sure you want to exit?"),
+                                 QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
         {
             status = STATUS_EXIT;
         }
@@ -115,7 +120,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_tbBrowse_clicked()
 {
-    QString filelocation = QFileDialog::getSaveFileName(NULL, "Select a disk image", QString(), "*.img;*.IMG;;*.*", 0, QFileDialog::DontConfirmOverwrite);
+    QString filelocation = QFileDialog::getSaveFileName(NULL, tr("Select a disk image"), QString(), "*.img;*.IMG;;*.*",
+                                                        0, QFileDialog::DontConfirmOverwrite);
     if (!filelocation.isNull())
     {
         leFile->setText(filelocation);
@@ -139,7 +145,7 @@ void MainWindow::on_tbBrowse_clicked()
 // generates the md5 hash
 void MainWindow::generateMd5(char *filename)
 {
-    md5label->setText("Generating...");
+    md5label->setText(tr("Generating..."));
     QApplication::processEvents();
 
     MD5 md5;
@@ -185,9 +191,11 @@ void MainWindow::on_bCancel_clicked()
     if ( (status == STATUS_READING) || (status == STATUS_WRITING) )
 
     {
-        if (QMessageBox::warning(NULL, "Cancel?", "Canceling now will result in a corrupt destination.\nAre you sure you want to cancel?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+        if (QMessageBox::warning(NULL, tr("Cancel?"), tr("Canceling now will result in a corrupt destination.\n"
+                                                         "Are you sure you want to cancel?"),
+                                 QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
         {
-            status = STATUS_IDLE;
+            status = STATUS_CANCELED;
         }
     }
 }
@@ -224,6 +232,7 @@ void MainWindow::on_md5CheckBox_stateChanged()
 
 void MainWindow::on_bWrite_clicked()
 {
+    bool passfail = true;
     if (!leFile->text().isEmpty())
     {
         QFileInfo fileinfo(leFile->text());
@@ -232,7 +241,7 @@ void MainWindow::on_bWrite_clicked()
         {
             if (leFile->text().at(0) == cboxDevice->currentText().at(1))
             {
-                QMessageBox::critical(NULL, "Write Error", "Image file cannot be located on the target device.");
+                QMessageBox::critical(NULL, tr("Write Error"), tr("Image file cannot be located on the target device."));
                 return;
             }
 
@@ -242,7 +251,10 @@ void MainWindow::on_bWrite_clicked()
             qs.replace(QRegExp("[\\[\\]]"), "");
             QByteArray qba = qs.toLocal8Bit();
             const char *ltr = qba.data();
-            if (QMessageBox::warning(NULL, "Confirm overwrite", QString("Writing to a physical device can corrupt the device.\n(Target Device: %1 \"%2\")\nAre you sure you want to continue?").arg(cboxDevice->currentText()).arg(getDriveLabel(ltr)), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+            if (QMessageBox::warning(NULL, tr("Confirm overwrite"), tr("Writing to a physical device can corrupt the device.\n"
+                                                                       "(Target Device: %1 \"%2\")\n"
+                                                                       "Are you sure you want to continue?").arg(cboxDevice->currentText()).arg(getDriveLabel(ltr)),
+                                     QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
             {
                 return;
             }
@@ -309,7 +321,8 @@ void MainWindow::on_bWrite_clicked()
             numsectors = getFileSizeInSectors(hFile, sectorsize);
             if (numsectors > availablesectors)
             {
-                QMessageBox::critical(NULL, "Write Error", QString("Not enough space on disk: Size: %1 sectors  Available: %2 sectors  Sector size: %3").arg(numsectors).arg(availablesectors).arg(sectorsize));
+                QMessageBox::critical(NULL, tr("Write Error"),
+                                      tr("Not enough space on disk: Size: %1 sectors  Available: %2 sectors  Sector size: %3").arg(numsectors).arg(availablesectors).arg(sectorsize));
                 removeLockOnVolume(hVolume);
                 CloseHandle(hRawDisk);
                 CloseHandle(hFile);
@@ -382,28 +395,37 @@ void MainWindow::on_bWrite_clicked()
             hRawDisk = INVALID_HANDLE_VALUE;
             hFile = INVALID_HANDLE_VALUE;
             hVolume = INVALID_HANDLE_VALUE;
+            if (status == STATUS_CANCELED){
+                passfail = false;
+            }
         }
         else if (!fileinfo.exists() || !fileinfo.isFile())
         {
-            QMessageBox::critical(NULL, "File Error", "The selected file does not exist.");
+            QMessageBox::critical(NULL, tr("File Error"), tr("The selected file does not exist."));
+            passfail = false;
         }
         else if (!fileinfo.isReadable())
         {
-            QMessageBox::critical(NULL, "File Error", "You do not have permision to read the selected file.");
+            QMessageBox::critical(NULL, tr("File Error"), tr("You do not have permision to read the selected file."));
+            passfail = false;
         }
         else if (fileinfo.size() == 0)
         {
-            QMessageBox::critical(NULL, "File Error", "The specified file contains no data.");
+            QMessageBox::critical(NULL, tr("File Error"), tr("The specified file contains no data."));
+            passfail = false;
         }
         progressbar->reset();
-        statusbar->showMessage("Done.");
+        statusbar->showMessage(tr("Done."));
         bCancel->setEnabled(false);
         setReadWriteButtonState();
-        QMessageBox::information(NULL, "Complete", "Write Successful.");
+        if (passfail){
+            QMessageBox::information(NULL, tr("Complete"), tr("Write Successful."));
+        }
+
     }
     else
     {
-        QMessageBox::critical(NULL, "File Error", "Please specify an image file to use.");
+        QMessageBox::critical(NULL, tr("File Error"), tr("Please specify an image file to use."));
     }
     if (status == STATUS_EXIT)
     {
@@ -419,12 +441,13 @@ void MainWindow::on_bRead_clicked()
         QFileInfo fileinfo(leFile->text());
         if (leFile->text().at(0) == cboxDevice->currentText().at(1))
         {
-            QMessageBox::critical(NULL, "Write Error", "Image file cannot be located on the target device.");
+            QMessageBox::critical(NULL, tr("Write Error"), tr("Image file cannot be located on the target device."));
             return;
         }
         if (fileinfo.exists())
         {
-            if (QMessageBox::warning(NULL, "Confirm Overwrite", "Are you sure you want to overwrite the specified file?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+            if (QMessageBox::warning(NULL, tr("Confirm Overwrite"), tr("Are you sure you want to overwrite the specified file?"),
+                                     QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::No)
             {
                 return;
             }
@@ -500,7 +523,7 @@ void MainWindow::on_bRead_clicked()
         }
         if (!spaceAvailable(leFile->text().left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
         {
-            QMessageBox::critical(NULL, "Write Error", "Disk is not large enough for the specified image.");
+            QMessageBox::critical(NULL, tr("Write Error"), tr("Disk is not large enough for the specified image."));
             removeLockOnVolume(hVolume);
             CloseHandle(hRawDisk);
             CloseHandle(hFile);
@@ -583,11 +606,11 @@ void MainWindow::on_bRead_clicked()
         statusbar->showMessage("Done.");
         bCancel->setEnabled(false);
         setReadWriteButtonState();
-        QMessageBox::information(NULL, "Complete", "Read Successful.");
+        QMessageBox::information(NULL, tr("Complete"), tr("Read Successful."));
     }
     else
     {
-        QMessageBox::critical(NULL, "File Info", "Please specify a file to save data to.");
+        QMessageBox::critical(NULL, tr("File Info"), tr("Please specify a file to save data to."));
     }
     if (status == STATUS_EXIT)
     {

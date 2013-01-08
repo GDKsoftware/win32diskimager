@@ -42,7 +42,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		MainWindow(QWidget *parent=0);
 		~MainWindow();
 		void closeEvent(QCloseEvent *event);
-		enum Status {STATUS_IDLE=0, STATUS_READING, STATUS_WRITING, STATUS_EXIT};
+        enum Status {STATUS_IDLE=0, STATUS_READING, STATUS_WRITING, STATUS_EXIT, STATUS_CANCELED};
 		bool winEvent ( MSG * msg, long * result );
 	protected slots:
 		void on_tbBrowse_clicked();

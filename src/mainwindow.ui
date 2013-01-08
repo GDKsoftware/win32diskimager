@@ -232,7 +232,7 @@
          <string/>
         </property>
         <property name="statusTip">
-         <string>Write data on 'Device' to 'Image File'</string>
+         <string>Read data from 'Device' to 'Image File'</string>
         </property>
         <property name="text">
          <string>Read</string>

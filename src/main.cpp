@@ -34,9 +34,14 @@
 
 int main(int argc, char *argv[])
 {
-    MainWindow *mainwindow;
-    QApplication *app = new QApplication(argc, argv);
-    mainwindow = new MainWindow;
-    mainwindow->show();
-    return app->exec();
+    QApplication app(argc, argv);
+
+    QString locale = QLocale::system().name();
+    QTranslator translator;
+    translator.load(QString("win32diskimager_")+ locale);
+    app.installTranslator(&translator);
+
+    MainWindow mainwindow;
+    mainwindow.show();
+    return app.exec();
 }
