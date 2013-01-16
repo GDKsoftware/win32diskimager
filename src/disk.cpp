@@ -60,7 +60,7 @@ HANDLE getHandleOnFile(char *filelocation, DWORD access)
 HANDLE getHandleOnDevice(int device, DWORD access)
 {
 	HANDLE hDevice;
-	QString devicename = QString("\\\\.\\PhysicalDrive%1").arg(device);
+    QString devicename = QString("\\\\.\\PhysicalDrive%1").arg(device);
 	hDevice = CreateFile(devicename.toAscii().data(), access, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 	if (hDevice == INVALID_HANDLE_VALUE)
 	{

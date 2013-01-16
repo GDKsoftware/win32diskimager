@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     getLogicalDrives();
     status = STATUS_IDLE;
     progressbar->reset();
-    statusbar->showMessage("Waiting for a task.");
+    statusbar->showMessage(tr("Waiting for a task."));
     hVolume = INVALID_HANDLE_VALUE;
     hFile = INVALID_HANDLE_VALUE;
     hRawDisk = INVALID_HANDLE_VALUE;
@@ -603,7 +603,7 @@ void MainWindow::on_bRead_clicked()
         hFile = INVALID_HANDLE_VALUE;
         hVolume = INVALID_HANDLE_VALUE;
         progressbar->reset();
-        statusbar->showMessage("Done.");
+        statusbar->showMessage(tr("Done."));
         bCancel->setEnabled(false);
         setReadWriteButtonState();
         QMessageBox::information(NULL, tr("Complete"), tr("Read Successful."));
@@ -720,5 +720,6 @@ bool MainWindow::winEvent ( MSG * msg, long * result )
             break;
         } // skip the rest
     } // end of if msg->message
+    *result = 0; //get rid of obnoxious compiler warning
     return false; // let qt handle the rest
 }
