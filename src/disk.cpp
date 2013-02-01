@@ -35,13 +35,7 @@
 HANDLE getHandleOnFile(char *filelocation, DWORD access)
 {
 	HANDLE hFile;
-	char hdr[] = "\\\\.\\";
-    // 'char *hdr = "foo"' gives a warning about string conversion
-	int locLen = strlen(hdr) + strlen(filelocation) + 1;
-	char *location = new char[locLen];
-	memset(location, 0, locLen);
-	sprintf(location, "%s%s", hdr, filelocation);
-	hFile = CreateFile(location, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
+    hFile = CreateFile(filelocation, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
 	{
 		wchar_t *errormessage=NULL;
@@ -52,8 +46,6 @@ HANDLE getHandleOnFile(char *filelocation, DWORD access)
                                                               "Error %1: %2").arg(GetLastError()).arg(errText));
 		LocalFree(errormessage);
 	}
-	delete location;
-	location = NULL;
 	return hFile;
 }
 
