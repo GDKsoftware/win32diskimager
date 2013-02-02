@@ -148,7 +148,10 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string/>
+             <string notr="true"/>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
             </property>
            </widget>
           </item>

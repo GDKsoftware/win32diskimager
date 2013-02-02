@@ -608,6 +608,15 @@ void MainWindow::on_bRead_clicked()
         bCancel->setEnabled(false);
         setReadWriteButtonState();
         QMessageBox::information(NULL, tr("Complete"), tr("Read Successful."));
+        if(md5CheckBox->isChecked())
+        {
+            QFileInfo fileinfo(leFile->text());
+            if (fileinfo.exists() && fileinfo.isFile() &&
+                    fileinfo.isReadable() && (fileinfo.size() > 0) )
+            {
+                generateMd5(leFile->text().toLatin1().data());
+            }
+        }
     }
     else
     {
