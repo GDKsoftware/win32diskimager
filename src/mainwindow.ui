@@ -189,17 +189,20 @@
     <item>
      <layout class="QHBoxLayout">
       <item>
-       <spacer>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+       <widget class="QLabel" name="VerLabel">
+        <property name="baseSize">
          <size>
           <width>40</width>
           <height>20</height>
          </size>
         </property>
-       </spacer>
+        <property name="text">
+         <string notr="true"/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="bCancel">

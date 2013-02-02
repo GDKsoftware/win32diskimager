@@ -55,7 +55,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
 
     setReadWriteButtonState();
-
+    QString myver = tr("Version: %1").arg(VER);
+    VerLabel->setText(myver);
     sectorData = NULL;
     sectorsize = 0ul;
 }
