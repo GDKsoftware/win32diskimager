@@ -1,0 +1,23 @@
+Release 0.7
+===========
+Added default directory path pointing to the user's download directory.
+Fixed permission settings to require administrator privileges in Vista/7
+Reinstated DiskImager.rc rc file (qmake method lost too many options - may revisit later).
+Make MD5Sum selectable for copying.  Fixes LP:1080880.
+Add version info to the main window.
+Cleanup, move winver resources to project file.
+Renamed base translation for English.
+More translation updates, minor cleanup.
+Added translation capabilities.  Cleaned up some code formatting (broke up long lines).
+Testing changes for UTF16 support.
+Clean up mixed indentation types, some minor code cleanup.  no functional changes.
+Updating the 'driveLabel' stuff to use QString rather than char * on a suggestion from Roland Rudenauer
+
+Bug fixes:
+Fixed LP:1100228 "An error occured while accessing the device. Error1: Incorrect function"
+Fixed LP:1102608 "Cannot load images from network shares"
+Fixed LP:1095038 "Error message encoding is messed up"
+Fixed LP:984510  "Cannot select Device"
+Fixed LP:923719  "An error occured while accessing the device. Error1: Incorrect function"
+Fixed LP:985080  "C: with windows 7 partition erased with all data" (NOT FULLY VERIFIED)
+fixing memory leak
