@@ -17,5 +17,6 @@ HEADERS += disk.h mainwindow.h
 FORMS += mainwindow.ui
 SOURCES += disk.cpp main.cpp mainwindow.cpp
 RESOURCES += gui_icons.qrc
+RC_FILE = DiskImager.rc
 TRANSLATIONS  = diskimager_en.ts
 
