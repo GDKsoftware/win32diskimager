@@ -1,5 +1,5 @@
 Image Writer for Microsoft Windows
-Release 0.6 (r46) - The "Tax Free" release
+Release 0.7 - Sourceforge Edition
 ===
 About:
 This utility is used to write Ubuntu img files to SD and USB cards.
@@ -8,10 +8,10 @@ removable device to write to.
 
 This utility can not write CD-ROMs.
 
-Future releases and source code available on our Launchpad project:
-https://launchpad.net/win32-image-writer
+Future releases and source code available on our Sourceforge project:
 
-This program is an alpha, and has no warrenty. It may eat your files,
+
+This program is Beta , and has no warrranty. It may eat your files,
 call you names, or explode in a massive shower of code. The authors take
 no responsibility for these possible events.
 
@@ -19,8 +19,8 @@ no responsibility for these possible events.
 Build Instructions:
 
 Requirements:
-1. MinGW
-2. Qt for Windows SDK
+1. MinGW (20120426 from http://mingw.org)
+2. Qt for Windows SDK (currently using 4.8.4 mingw from http://qt-project.org)
 
 Short Version:
 1. Install the Qt Full SDK
@@ -39,7 +39,8 @@ which is in the public domain.
 
 This project uses and includes binaries of the Qt library from 
 http://www.qtsoftware.com/, licensed under the Library General Public 
-license. It is available at http://get.qtsoftware.com/qtsdk/qt-sdk-win-opensource-2009.01.1.exe
+license. It is available at http://qt-project.org
+
 The license text is available in LGPL-2.1
 
 Original version developed by Justin Davis <tuxdavis@gmail.com>
