@@ -49,7 +49,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void on_bCancel_clicked();
 		void on_bWrite_clicked();
 		void on_bRead_clicked();
-		void on_leFile_textChanged(const QString&);
+        void on_leFile_textChanged();
 		void on_leFile_editingFinished();
 		void on_md5CheckBox_stateChanged();
 	private:
@@ -65,6 +65,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		char *sectorData;
 		QTime timer;
 		void generateMd5(char *filename);
+        QString myFile;
+        QString myHomeDir;
 };
 
 #endif // MAINWINDOW_H

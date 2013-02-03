@@ -27,11 +27,13 @@
 #include <QtGui>
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QDirIterator>
 #include <cstdio>
 #include <cstdlib>
 #include <windows.h>
 #include <winioctl.h>
 #include <dbt.h>
+#include <shlobj.h>
 
 #include "disk.h"
 #include "mainwindow.h"
@@ -59,6 +61,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     VerLabel->setText(myver);
     sectorData = NULL;
     sectorsize = 0ul;
+
+    myHomeDir = QDir::homePath();
+    if (myHomeDir == NULL){
+        myHomeDir = qgetenv("USERPROFILE");
+    }
+    QRegExp dir(tr("/Downloads$"));
+    dir.setPatternSyntax(QRegExp::RegExp);
+    QDirIterator it(myHomeDir, QDir::AllDirs|QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        it.next();
+        if (it.fileInfo().filePath().contains(dir)){
+            myHomeDir = it.filePath();
+            break;
+
+        }
+    }
 }
 
 MainWindow::~MainWindow()
@@ -121,7 +139,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_tbBrowse_clicked()
 {
-    QString filelocation = QFileDialog::getOpenFileName(NULL, tr("Select a disk image"), QString(), "*.img;*.IMG;;*.*",
+    QString filelocation = QFileDialog::getOpenFileName(NULL, tr("Select a disk image"), myHomeDir, "*.img;*.IMG;;*.*",
                                                         0, QFileDialog::DontConfirmOverwrite);
     if (!filelocation.isNull())
     {
@@ -161,7 +179,7 @@ void MainWindow::generateMd5(char *filename)
     QApplication::restoreOverrideCursor();
 }
 
-void MainWindow::on_leFile_textChanged(const QString &qs)
+void MainWindow::on_leFile_textChanged()
 {
     setReadWriteButtonState();
 
@@ -439,8 +457,13 @@ void MainWindow::on_bRead_clicked()
 {
     if (!leFile->text().isEmpty())
     {
-        QFileInfo fileinfo(leFile->text());
-        if (leFile->text().at(0) == cboxDevice->currentText().at(1))
+        myFile = leFile->text();
+        QFileInfo fileinfo(myFile);
+        if (fileinfo.path()=="."){
+            myFile=(myHomeDir + "/" + leFile->text());
+            QFileInfo fileinfo(myFile);
+        }
+        if (myFile.at(0) == cboxDevice->currentText().at(1))
         {
             QMessageBox::critical(NULL, tr("Write Error"), tr("Image file cannot be located on the target device."));
             return;
@@ -488,7 +511,7 @@ void MainWindow::on_bRead_clicked()
             setReadWriteButtonState();
             return;
         }
-        hFile = getHandleOnFile(leFile->text().toAscii().data(), GENERIC_WRITE);
+        hFile = getHandleOnFile(myFile.toAscii().data(), GENERIC_WRITE);
         if (hFile == INVALID_HANDLE_VALUE)
         {
             removeLockOnVolume(hVolume);
@@ -522,7 +545,7 @@ void MainWindow::on_bRead_clicked()
         {
             spaceneeded = (unsigned long long)(numsectors - filesize) * (unsigned long long)(sectorsize);
         }
-        if (!spaceAvailable(leFile->text().left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
+        if (!spaceAvailable(myFile.left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
         {
             QMessageBox::critical(NULL, tr("Write Error"), tr("Disk is not large enough for the specified image."));
             removeLockOnVolume(hVolume);
@@ -607,14 +630,19 @@ void MainWindow::on_bRead_clicked()
         statusbar->showMessage(tr("Done."));
         bCancel->setEnabled(false);
         setReadWriteButtonState();
-        QMessageBox::information(NULL, tr("Complete"), tr("Read Successful."));
+        if (status == STATUS_CANCELED){
+            QMessageBox::information(NULL, tr("Complete"), tr("Read Canceled."));
+        } else {
+            QMessageBox::information(NULL, tr("Complete"), tr("Read Successful."));
+
+        }
         if(md5CheckBox->isChecked())
         {
-            QFileInfo fileinfo(leFile->text());
+            QFileInfo fileinfo(myFile);
             if (fileinfo.exists() && fileinfo.isFile() &&
                     fileinfo.isReadable() && (fileinfo.size() > 0) )
             {
-                generateMd5(leFile->text().toLatin1().data());
+                generateMd5(myFile.toLatin1().data());
             }
         }
     }
