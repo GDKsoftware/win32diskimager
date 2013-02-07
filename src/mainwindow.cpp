@@ -45,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     getLogicalDrives();
     status = STATUS_IDLE;
     progressbar->reset();
+    clipboard = QApplication::clipboard();
+    bMd5Copy->setVisible(false);
     statusbar->showMessage(tr("Waiting for a task."));
     hVolume = INVALID_HANDLE_VALUE;
     hFile = INVALID_HANDLE_VALUE;
@@ -159,6 +161,16 @@ void MainWindow::on_tbBrowse_clicked()
             }
         }
     }
+    updateMd5CopyButton();
+}
+
+void MainWindow::on_bMd5Copy_clicked()
+{
+    QString md5sum(md5label->text());
+    if ( !(md5sum.isEmpty()) )
+    {
+        clipboard->setText(md5sum);
+    }
 }
 
 // generates the md5 hash
@@ -183,11 +195,13 @@ void MainWindow::on_leFile_textChanged()
 {
     setReadWriteButtonState();
 
-    // if the box was cleared, clear any existing md5 hash
-    if( leFile->text().isEmpty() )
+    // since the filename was edited, the md5sum no longer
+    //    applies - clear it...
+    if( !(md5label->text().isEmpty()) )
     {
         md5label->clear();
     }
+    updateMd5CopyButton();
 }
 
 // on an "editingFinished" signal (IE: return press), if the lineedit
@@ -203,6 +217,7 @@ void MainWindow::on_leFile_editingFinished()
             generateMd5(leFile->text().toLatin1().data());
         }
     }
+    updateMd5CopyButton();
 }
 
 void MainWindow::on_bCancel_clicked()
@@ -247,6 +262,8 @@ void MainWindow::on_md5CheckBox_stateChanged()
         // changed from checked to unchecked
         md5label->clear();
     }
+
+    updateMd5CopyButton();
 }
 
 void MainWindow::on_bWrite_clicked()
@@ -455,6 +472,7 @@ void MainWindow::on_bWrite_clicked()
 
 void MainWindow::on_bRead_clicked()
 {
+    QString myFile;
     if (!leFile->text().isEmpty())
     {
         myFile = leFile->text();
@@ -760,4 +778,18 @@ bool MainWindow::winEvent ( MSG * msg, long * result )
     } // end of if msg->message
     *result = 0; //get rid of obnoxious compiler warning
     return false; // let qt handle the rest
+}
+
+void MainWindow::updateMd5CopyButton()
+{
+    // if the md5 checkbox is checked, and there's a value is the md5 label,
+    //   make the copy button visible
+    if ( md5CheckBox->isChecked() &&  !(md5label->text().isEmpty()) )
+    {
+    	bMd5Copy->setVisible(true);
+    }
+    else
+    {
+    	bMd5Copy->setVisible(false);
+    }
 }

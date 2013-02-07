@@ -16,7 +16,7 @@
  *                                                                    *
  *  ---                                                               *
  *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
- *  Copyright (C) 2009, 2012 ImageWriter developers                   *
+ *  Copyright (C) 2009-2013 ImageWriter developers                   *
  *                           https://launchpad.net/~image-writer-devs *
  **********************************************************************/
 
@@ -28,6 +28,7 @@
 #endif
 
 #include <QtGui>
+#include <QClipboard>
 #include <cstdio>
 #include <cstdlib>
 #include <windows.h>
@@ -52,6 +53,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void on_leFile_textChanged();
 		void on_leFile_editingFinished();
 		void on_md5CheckBox_stateChanged();
+		void on_bMd5Copy_clicked();
 	private:
 		// find attached devices
 		void getLogicalDrives();
@@ -64,9 +66,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		int status;
 		char *sectorData;
 		QTime timer;
+		QClipboard *clipboard;
 		void generateMd5(char *filename);
-        QString myFile;
-        QString myHomeDir;
+		QString myHomeDir;
+		void updateMd5CopyButton();
 };
 
 #endif // MAINWINDOW_H
