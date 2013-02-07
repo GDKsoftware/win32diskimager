@@ -663,6 +663,7 @@ void MainWindow::on_bRead_clicked()
                 generateMd5(myFile.toLatin1().data());
             }
         }
+	updateMd5CopyButton();
     }
     else
     {
