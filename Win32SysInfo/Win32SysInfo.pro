@@ -8,13 +8,16 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Win32SysInfo
+TARGET = ../../Win32SysInfo
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp
+SOURCES += \
+    w32si-main.cpp \
+    w32si-mw.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += \
+    w32si.h
 
-FORMS    += mainwindow.ui
+FORMS    += \
+    win32sysinfo.ui
