@@ -43,7 +43,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="leFile"/>
+          <widget class="DroppableLineEdit" name="leFile"/>
          </item>
          <item>
           <widget class="QToolButton" name="tbBrowse">
@@ -305,6 +305,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DroppableLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>droppablelineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="gui_icons.qrc"/>
  </resources>
