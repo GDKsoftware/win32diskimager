@@ -32,10 +32,10 @@
 #include <winioctl.h>
 #include "disk.h"
 
-HANDLE getHandleOnFile(char *filelocation, DWORD access)
+HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access)
 {
 	HANDLE hFile;
-    hFile = CreateFile(filelocation, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
+    hFile = CreateFileW(filelocation, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
 	{
 		wchar_t *errormessage=NULL;
@@ -53,7 +53,7 @@ HANDLE getHandleOnDevice(int device, DWORD access)
 {
 	HANDLE hDevice;
     QString devicename = QString("\\\\.\\PhysicalDrive%1").arg(device);
-	hDevice = CreateFile(devicename.toAscii().data(), access, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    hDevice = CreateFile(devicename.toAscii().data(), access, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 	if (hDevice == INVALID_HANDLE_VALUE)
 	{
 		wchar_t *errormessage=NULL;
