@@ -41,6 +41,8 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    QStringList dirStack;
+    QString downloadPath = "";
     setupUi(this);
     getLogicalDrives();
     status = STATUS_IDLE;
@@ -68,17 +70,36 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     if (myHomeDir == NULL){
         myHomeDir = qgetenv("USERPROFILE");
     }
-    QRegExp dir(tr("/Downloads$"));
-    dir.setPatternSyntax(QRegExp::RegExp);
-    QDirIterator it(myHomeDir, QDir::AllDirs|QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    QString dir(tr("Downloads"));
+    dirStack.append(myHomeDir);
+    while (!dirStack.isEmpty() && downloadPath.isEmpty())
+    {
+        QString curPath = dirStack.takeFirst();
+        QDir curDir = QDir(curPath);
+        QStringList dirList = curDir.entryList(QDir::AllDirs|QDir::NoDotAndDotDot, QDir::Time|QDir::Reversed);
+        for (int i = 0; i < dirList.size() && downloadPath.isEmpty(); ++i)
+        {
+            dirStack.prepend(curPath + "/" + dirList[i]);
+            if (dirList[i].toLower() == dir.toLower())
+                downloadPath = curPath + "/" + dirList[i];
+        }
+    }
+    dirStack.clear();
+    if (downloadPath.isEmpty())
+        downloadPath = QDir::currentPath();
+    myHomeDir = downloadPath;
+    //QRegExp dir(tr("/Downloads$"));
+    //dir.setPatternSyntax(QRegExp::RegExp);
+    /*QDirIterator it(myHomeDir, QDir::AllDirs|QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         it.next();
-        if (it.fileInfo().filePath().contains(dir)){
+        if (QString::compare(it.fileName(), dir, Qt::CaseInsensitive)) {
+        //if (it.fileName().compare(dir)){
             myHomeDir = it.filePath();
             break;
 
         }
-    }
+    }*/
 }
 
 MainWindow::~MainWindow()
