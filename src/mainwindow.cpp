@@ -88,18 +88,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     if (downloadPath.isEmpty())
         downloadPath = QDir::currentPath();
     myHomeDir = downloadPath;
-    //QRegExp dir(tr("/Downloads$"));
-    //dir.setPatternSyntax(QRegExp::RegExp);
-    /*QDirIterator it(myHomeDir, QDir::AllDirs|QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        it.next();
-        if (QString::compare(it.fileName(), dir, Qt::CaseInsensitive)) {
-        //if (it.fileName().compare(dir)){
-            myHomeDir = it.filePath();
-            break;
-
-        }
-    }*/
 }
 
 MainWindow::~MainWindow()
