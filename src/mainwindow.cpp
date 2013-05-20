@@ -338,7 +338,7 @@ void MainWindow::on_bWrite_clicked()
                 setReadWriteButtonState();
                 return;
             }
-            hFile = getHandleOnFile(LPCWSTR (leFile->text().toUtf8().data()), GENERIC_READ);
+            hFile = getHandleOnFile(leFile->text().toAscii().data(), GENERIC_READ);
             if (hFile == INVALID_HANDLE_VALUE)
             {
                 removeLockOnVolume(hVolume);
@@ -538,7 +538,7 @@ void MainWindow::on_bRead_clicked()
             setReadWriteButtonState();
             return;
         }
-        hFile = getHandleOnFile(LPCWSTR (myFile.toUtf8().data()), GENERIC_WRITE);
+        hFile = getHandleOnFile(myFile.toAscii().data(), GENERIC_WRITE);
         if (hFile == INVALID_HANDLE_VALUE)
         {
             removeLockOnVolume(hVolume);
