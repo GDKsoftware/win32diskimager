@@ -90,7 +90,7 @@ typedef struct _STORAGE_PROPERTY_QUERY
     UCHAR  AdditionalParameters[1];
 } STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
 
-HANDLE getHandleOnFile(char *filelocation, DWORD access);
+HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access);
 HANDLE getHandleOnDevice(int device, DWORD access);
 HANDLE getHandleOnVolume(int volume, DWORD access);
 QString getDriveLabel(const char *drv);

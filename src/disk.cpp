@@ -32,10 +32,10 @@
 #include <winioctl.h>
 #include "disk.h"
 
-HANDLE getHandleOnFile(char *filelocation, DWORD access)
+HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access)
 {
 	HANDLE hFile;
-    hFile = CreateFile(filelocation, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
+    hFile = CreateFileW(filelocation, access, 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
 	{
 		wchar_t *errormessage=NULL;
