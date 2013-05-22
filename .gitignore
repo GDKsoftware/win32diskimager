@@ -1,0 +1,4 @@
+Debug/
+Release/
+*.exe
+*.pro.user
