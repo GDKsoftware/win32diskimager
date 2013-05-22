@@ -167,6 +167,10 @@ char *readSectorDataFromHandle(HANDLE handle, unsigned long long startsector, un
 		delete data;
 		data = NULL;
 	}
+    if (bytesread < (sectorsize * numsectors))
+    {
+            memset(data + bytesread,0,(sectorsize * numsectors) - bytesread);
+    }
 	return data;
 }
 
@@ -174,10 +178,10 @@ bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long long start
 {
 	unsigned long byteswritten;
 	BOOL bResult;
-	LARGE_INTEGER li;
+    LARGE_INTEGER li;
 	li.QuadPart = startsector * sectorsize;
 	SetFilePointer(handle, li.LowPart, &li.HighPart, FILE_BEGIN);
-	bResult = WriteFile(handle, data, sectorsize * numsectors, &byteswritten, NULL);
+    bResult = WriteFile(handle, data, sectorsize * numsectors, &byteswritten, NULL);
 	if (!bResult)
 	{
         wchar_t *errormessage=NULL;
@@ -233,7 +237,7 @@ unsigned long long getFileSizeInSectors(HANDLE handle, unsigned long long sector
 	}
 	else
 	{
-		retVal = ((unsigned long long)filesize.QuadPart / sectorsize );
+        retVal = ((unsigned long long)filesize.QuadPart / sectorsize ) + (((unsigned long long)filesize.QuadPart % sectorsize )?1:0);
 	}
 	return(retVal);
 }
