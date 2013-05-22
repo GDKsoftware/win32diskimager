@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         QStringList dirList = curDir.entryList(QDir::AllDirs|QDir::NoDotAndDotDot, QDir::Time|QDir::Reversed);
         for (int i = 0; i < dirList.size() && downloadPath.isEmpty(); ++i)
         {
-            dirStack.prepend(curPath + "/" + dirList[i]);
+            dirStack.append(curPath + "/" + dirList[i]);
             if (dirList[i].toLower() == dir.toLower())
                 downloadPath = curPath + "/" + dirList[i];
         }
