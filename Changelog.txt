@@ -1,3 +1,22 @@
+Release 0.8
+===========
+Added drag and drop - Drag a file from Windows Explorer and drop it in the
+text window.
+Added DiskImagesDir environment variable for default images directory.
+Improved startup Downloads directory search.
+Add copy button for MD5.
+
+Bug fixes:
+LP:1080880 Add a copy button for MD5.
+LP:1157849 - Partial sectors not written.
+LP:1117840 Initial startup can take a long time (+20s) due to the "Downloads" find routine.
+LP:1118349 Application does not start.
+LP:1157849 Partial sectors not written.
+SF:1 Application doesn't start. No window appears.
+SF:3 No support of russian characters in image file path
+SF:5 Very long app opening time
+
+
 Release 0.7
 ===========
 Added default directory path pointing to the user's download directory.
