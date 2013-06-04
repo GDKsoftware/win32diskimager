@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     status = STATUS_IDLE;
     progressbar->reset();
     clipboard = QApplication::clipboard();
-    bMd5Copy->setVisible(false);
+    //bMd5Copy->setVisible(false);
     statusbar->showMessage(tr("Waiting for a task."));
     hVolume = INVALID_HANDLE_VALUE;
     hFile = INVALID_HANDLE_VALUE;
@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         leFile->setText(fileInfo.absoluteFilePath());
     }
 
+    updateMd5CopyButton();
     setReadWriteButtonState();
     QString myver = tr("Version: %1").arg(VER);
     VerLabel->setText(myver);
@@ -70,7 +71,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     if (myHomeDir == NULL){
         myHomeDir = qgetenv("USERPROFILE");
     }
-    QString dir(tr("Downloads"));
+    downloadPath = qgetenv("DiskImagesDir");
+    QRegExp dir(tr("Downloads$"));
     dirStack.append(myHomeDir);
     while (!dirStack.isEmpty() && downloadPath.isEmpty())
     {
@@ -80,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         for (int i = 0; i < dirList.size() && downloadPath.isEmpty(); ++i)
         {
             dirStack.append(curPath + "/" + dirList[i]);
-            if (dirList[i].toLower() == dir.toLower())
+            if (dir.exactMatch(dirList[i]))
                 downloadPath = curPath + "/" + dirList[i];
         }
     }
@@ -206,9 +208,13 @@ void MainWindow::on_leFile_textChanged()
 
     // since the filename was edited, the md5sum no longer
     //    applies - clear it...
-    if( !(md5label->text().isEmpty()) )
+    if(md5CheckBox->isChecked())
     {
-        md5label->clear();
+        if( !(md5label->text().isEmpty()) )
+        {
+            md5label->clear();
+        }
+        generateMd5(leFile->text().toLatin1().data());
     }
     updateMd5CopyButton();
 }
@@ -794,12 +800,7 @@ void MainWindow::updateMd5CopyButton()
 {
     // if the md5 checkbox is checked, and there's a value is the md5 label,
     //   make the copy button visible
-    if ( md5CheckBox->isChecked() &&  !(md5label->text().isEmpty()) )
-    {
-    	bMd5Copy->setVisible(true);
-    }
-    else
-    {
-    	bMd5Copy->setVisible(false);
-    }
+    bool boxChecked = md5CheckBox->isChecked();
+    bool haveMd5 = !(md5label->text().isEmpty());
+    bMd5Copy->setEnabled(boxChecked && haveMd5);
 }
