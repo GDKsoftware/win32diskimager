@@ -429,10 +429,21 @@ bool checkDriveType(char *name, ULONG *pid)
             {
                 // ensure that the drive is actually accessible
                 // multi-card hubs were reporting "removable" even when empty
-                if(DeviceIoControl (hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
+                if(DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
                 {
                     *pid = deviceInfo.DeviceNumber;
                     retVal = true;
+                }
+                else
+                    // IOCTL_STORAGE_CHECK_VERIFY2 fails on some devices under XP/Vista, try the other (slower) method, just in case.
+                {
+                    CloseHandle(hDevice);
+                    hDevice = CreateFile(nameNoSlash, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+                    if(DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
+                    {
+                        *pid = deviceInfo.DeviceNumber;
+                        retVal = true;
+                    }
                 }
             }
 
