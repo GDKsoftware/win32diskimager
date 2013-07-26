@@ -152,13 +152,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_tbBrowse_clicked()
 {
+	// create a generic FileDialog
 	QFileDialog dialog(NULL, tr("Select a disk image"));
 	dialog.setNameFilter(tr("Disk Images (*.img *.IMG);;*.*"));
 	dialog.setFileMode(QFileDialog::AnyFile);
 	dialog.setViewMode(QFileDialog::List);
 	dialog.setDirectory(myHomeDir);
 	dialog.setConfirmOverwrite(false);
-	QString fileLocation;
+
+	QString fileLocation = NULL;
 	if (dialog.exec())
 	{
 		// selectedFiles returns a QStringList - we just want 1 filename,
@@ -167,8 +169,6 @@ void MainWindow::on_tbBrowse_clicked()
 	}
 
 
-//    QString filelocation = QFileDialog::getOpenFileName(NULL, tr("Select a disk image"), myHomeDir, "*.img;*.IMG;;*.*",
-//                                                        0, QFileDialog::DontConfirmOverwrite);
     if (!fileLocation.isNull())
     {
         leFile->setText(fileLocation);
