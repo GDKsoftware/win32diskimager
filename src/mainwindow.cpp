@@ -55,8 +55,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     hRawDisk = INVALID_HANDLE_VALUE;
     if (QCoreApplication::arguments().count() > 1)
     {
-        QString filelocation = QApplication::arguments().at(1);
-        QFileInfo fileInfo(filelocation);
+        QString fileLocation = QApplication::arguments().at(1);
+        QFileInfo fileInfo(fileLocation);
         leFile->setText(fileInfo.absoluteFilePath());
     }
 
@@ -152,23 +152,38 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_tbBrowse_clicked()
 {
-    QString filelocation = QFileDialog::getOpenFileName(NULL, tr("Select a disk image"), myHomeDir, "*.img;*.IMG;;*.*",
-                                                        0, QFileDialog::DontConfirmOverwrite);
-    if (!filelocation.isNull())
+	QFileDialog dialog(NULL, tr("Select a disk image"));
+	dialog.setNameFilter(tr("Disk Images (*.img *.IMG);;*.*"));
+	dialog.setFileMode(QFileDialog::AnyFile);
+	dialog.setViewMode(QFileDialog::List);
+	dialog.setDirectory(myHomeDir);
+	dialog.setConfirmOverwrite(false);
+	QString fileLocation;
+	if (dialog.exec())
+	{
+		// selectedFiles returns a QStringList - we just want 1 filename,
+		//	so use the zero'th element from that list as the filename
+		fileLocation = (dialog.selectedFiles())[0];
+	}
+
+
+//    QString filelocation = QFileDialog::getOpenFileName(NULL, tr("Select a disk image"), myHomeDir, "*.img;*.IMG;;*.*",
+//                                                        0, QFileDialog::DontConfirmOverwrite);
+    if (!fileLocation.isNull())
     {
-        leFile->setText(filelocation);
+        leFile->setText(fileLocation);
         md5label->clear();
 
         // if the md5 checkbox is checked, verify that it's a good file
         // and then generate the md5 hash
         if(md5CheckBox->isChecked())
         {
-            QFileInfo fileInfo(filelocation);
+            QFileInfo fileInfo(fileLocation);
 
             if (fileInfo.exists() && fileInfo.isFile() &&
                     fileInfo.isReadable() && (fileInfo.size() > 0) )
             {
-                generateMd5(filelocation.toLatin1().data());
+                generateMd5(fileLocation.toLatin1().data());
             }
         }
     }
@@ -496,11 +511,13 @@ void MainWindow::on_bRead_clicked()
             myFile=(myHomeDir + "/" + leFile->text());
             QFileInfo fileinfo(myFile);
         }
+	// check whether source and target device is the same...
         if (myFile.at(0) == cboxDevice->currentText().at(1))
         {
             QMessageBox::critical(NULL, tr("Write Error"), tr("Image file cannot be located on the target device."));
             return;
         }
+	// confirm overwrite if the dest. file already exists
         if (fileinfo.exists())
         {
             if (QMessageBox::warning(NULL, tr("Confirm Overwrite"), tr("Are you sure you want to overwrite the specified file?"),
