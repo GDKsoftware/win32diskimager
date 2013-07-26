@@ -50,7 +50,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void on_bCancel_clicked();
 		void on_bWrite_clicked();
 		void on_bRead_clicked();
-        void on_leFile_textChanged();
+		void on_leFile_textChanged();
 		void on_leFile_editingFinished();
 		void on_md5CheckBox_stateChanged();
 		void on_bMd5Copy_clicked();
