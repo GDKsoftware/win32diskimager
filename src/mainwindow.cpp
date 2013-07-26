@@ -156,7 +156,7 @@ void MainWindow::on_tbBrowse_clicked()
 	QFileDialog dialog(NULL, tr("Select a disk image"));
 	dialog.setNameFilter(tr("Disk Images (*.img *.IMG);;*.*"));
 	dialog.setFileMode(QFileDialog::AnyFile);
-	dialog.setViewMode(QFileDialog::List);
+	dialog.setViewMode(QFileDialog::Detail);
 	dialog.setDirectory(myHomeDir);
 	dialog.setConfirmOverwrite(false);
 
