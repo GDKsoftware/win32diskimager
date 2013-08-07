@@ -1,3 +1,12 @@
+Release 0.9
+===========
+Added custom file dialog window.
+
+Bug fixes:
+LP:1118217 - can not select SD card to write image to.
+LP:1191156 - File-open dialog does not accept non-existing *.img files as targets.
+
+
 Release 0.8
 ===========
 Added drag and drop - Drag a file from Windows Explorer and drop it in the

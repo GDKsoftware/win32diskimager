@@ -1,5 +1,5 @@
 Image Writer for Microsoft Windows
-Release 0.8 - Furball Edition
+Release 0.9 - Unnamed Edition
 ======
 About:
 ======
@@ -10,8 +10,9 @@ removable device to write to.
 This utility can not write CD-ROMs.
 
 Future releases and source code are available on our Sourceforge project:
+http://sourceforge.net/projects/win32diskimager/
 
-This program is Beta , and has no warrranty. It may eat your files,
+This program is Beta , and has no warranty. It may eat your files,
 call you names, or explode in a massive shower of code. The authors take
 no responsibility for these possible events.
 
@@ -30,25 +31,21 @@ Short Version:
 =============
 New Features:
 =============
-Added a Copy button to copy the MD5Sum to the clipboard.
+Added a custom file dialog box to solve the issues between opening a non-existant 
+file and saving a read-only file.
 
-Added an environment variable "DiskImagesDir" check to use as a default 
-directory.  This bypasses the search for the "Downloads" directory (which
-has been greatly improved over v0.7).
-
-Added drag and drop.  You can now "drag" a file from Windows Explorer and
- "drop" it into the filename text window.
+Fixed bug LP:1118217 - can not select SD card to write image to on select computers.
+Fixed bug LP:1191156 File-Open dialog does not accept non-existing img files as target.
 
 =============
 Known Issues:
 =============
-One outstanding bug affects users with built-in Ricoh based 4in1 SD card
-readers on Windows XP and Vista.  This is actively being debugged and will 
-be targeted for the next release.  Workarounds include upgrading to 
-Windows 7 or using a USB SD card reader.
 
-Other issues is lack of reformat capabilities, lack of file compression
- support, and an installer.  These are being looked into for future releases.
+*  Lack of reformat capabilities.
+*  Lack of file compression support
+*  Lack of an installer.  
+
+These are being looked into for future releases.
 
 ======
 Legal:
@@ -67,5 +64,5 @@ http://www.qt-project.org/.
 The license text is available in LGPL-2.1
 
 Original version developed by Justin Davis <tuxdavis@gmail.com>
-Maintained by the ImageWriter developers (https://launchpad.net/~image-writer-devs).
+Maintained by the ImageWriter developers (http://sourceforge.net/projects/win32diskimager).
 
