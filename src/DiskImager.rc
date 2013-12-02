@@ -71,12 +71,12 @@ BEGIN
         BEGIN
             VALUE "Comments", "Image Writer for Windows to write USB and SD images"
             VALUE "FileDescription", "DiskImager"
-            VALUE "FileVersion", "0, 9"
+            VALUE "FileVersion", "0.9"
             VALUE "InternalName", "win32-image-writer"
             VALUE "LegalCopyright", "Copyright (C) 2009-2013 Windows ImageWriter Team"
             VALUE "OriginalFilename", "Win32DiskImager"
             VALUE "ProductName", "Win32 Image Writer"
-            VALUE "ProductVersion", "0, 9"
+            VALUE "ProductVersion", "0.9"
         END
     END
     BLOCK "VarFileInfo"
