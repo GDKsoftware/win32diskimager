@@ -21,12 +21,12 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf32}\ImageWriter
-DefaultGroupName=Accessories
+DefaultGroupName=Accessories\Image Writer
 LicenseFile=License.txt
 InfoAfterFile=README.txt
 OutputBaseFilename=win32diskimager-setup
 SetupIconFile=src\images\setup.ico
-Compression=lzma
+Compression=lzma2
 SolidCompression=yes
 
 [Languages]
