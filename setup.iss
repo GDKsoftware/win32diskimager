@@ -23,9 +23,8 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf32}\ImageWriter
 DefaultGroupName=Accessories\Image Writer
 LicenseFile=License.txt
-InfoAfterFile=README.txt
 OutputBaseFilename=win32diskimager-setup
-SetupIconFile=src\images\setup.ico
+SetupIconFile=setup.ico
 Compression=lzma2
 SolidCompression=yes
 
@@ -37,16 +36,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "C:\win32diskimager\src\Win32DiskImager.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\Changelog.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\GPL-2"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\LGPL-2.1"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\libgcc_s_dw2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\mingwm10.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\QtCore4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\win32diskimager\src\README.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Win32DiskImager.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Changelog.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "GPL-2"; DestDir: "{app}"; Flags: ignoreversion
+Source: "LGPL-2.1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "README.txt"; DestDir: "{app}"; Flags: ignoreversion isreadme
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
