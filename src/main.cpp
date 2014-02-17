@@ -21,7 +21,7 @@
  **********************************************************************/
 
 #ifndef WINVER
-#define WINVER 0x0500
+#define WINVER 0x0601
 #endif
 
 #include <QApplication>

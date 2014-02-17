@@ -21,10 +21,10 @@
  **********************************************************************/
 
 #ifndef WINVER
-#define WINVER 0x0500
+#define WINVER 0x0601
 #endif
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QDirIterator>
@@ -152,21 +152,21 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_tbBrowse_clicked()
 {
-	// create a generic FileDialog
-	QFileDialog dialog(NULL, tr("Select a disk image"));
-	dialog.setNameFilter(tr("Disk Images (*.img *.IMG);;*.*"));
-	dialog.setFileMode(QFileDialog::AnyFile);
-	dialog.setViewMode(QFileDialog::Detail);
-	dialog.setDirectory(myHomeDir);
-	dialog.setConfirmOverwrite(false);
+    // create a generic FileDialog
+    QFileDialog dialog(NULL, tr("Select a disk image"));
+    dialog.setNameFilter(tr("Disk Images (*.img *.IMG);;*.*"));
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setViewMode(QFileDialog::Detail);
+    dialog.setDirectory(myHomeDir);
+    dialog.setConfirmOverwrite(false);
 
-	QString fileLocation = NULL;
-	if (dialog.exec())
-	{
-		// selectedFiles returns a QStringList - we just want 1 filename,
-		//	so use the zero'th element from that list as the filename
-		fileLocation = (dialog.selectedFiles())[0];
-	}
+    QString fileLocation = NULL;
+    if (dialog.exec())
+    {
+        // selectedFiles returns a QStringList - we just want 1 filename,
+        //	so use the zero'th element from that list as the filename
+        fileLocation = (dialog.selectedFiles())[0];
+    }
 
 
     if (!fileLocation.isNull())
@@ -330,7 +330,7 @@ void MainWindow::on_bWrite_clicked()
             bRead->setEnabled(false);
             double mbpersec;
             unsigned long long i, lasti, availablesectors, numsectors;
-            int volumeID = cboxDevice->currentText().at(1).toAscii() - 'A';
+            int volumeID = cboxDevice->currentText().at(1).toLatin1() - 'A';
             int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
             hVolume = getHandleOnVolume(volumeID, GENERIC_WRITE);
             if (hVolume == INVALID_HANDLE_VALUE)
@@ -511,13 +511,13 @@ void MainWindow::on_bRead_clicked()
             myFile=(myHomeDir + "/" + leFile->text());
             QFileInfo fileinfo(myFile);
         }
-	// check whether source and target device is the same...
+    // check whether source and target device is the same...
         if (myFile.at(0) == cboxDevice->currentText().at(1))
         {
             QMessageBox::critical(NULL, tr("Write Error"), tr("Image file cannot be located on the target device."));
             return;
         }
-	// confirm overwrite if the dest. file already exists
+    // confirm overwrite if the dest. file already exists
         if (fileinfo.exists())
         {
             if (QMessageBox::warning(NULL, tr("Confirm Overwrite"), tr("Are you sure you want to overwrite the specified file?"),
@@ -532,7 +532,7 @@ void MainWindow::on_bRead_clicked()
         status = STATUS_READING;
         double mbpersec;
         unsigned long long i, lasti, numsectors, filesize, spaceneeded = 0ull;
-        int volumeID = cboxDevice->currentText().at(1).toAscii() - 'A';
+        int volumeID = cboxDevice->currentText().at(1).toLatin1() - 'A';
         int deviceID = cboxDevice->itemData(cboxDevice->currentIndex()).toInt();
         hVolume = getHandleOnVolume(volumeID, GENERIC_READ);
         if (hVolume == INVALID_HANDLE_VALUE)
@@ -595,7 +595,7 @@ void MainWindow::on_bRead_clicked()
         {
             spaceneeded = (unsigned long long)(numsectors - filesize) * (unsigned long long)(sectorsize);
         }
-        if (!spaceAvailable(myFile.left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
+        if (!spaceAvailable(myFile.left(3).replace(QChar('/'), QChar('\\')).toLatin1().data(), spaceneeded))
         {
             QMessageBox::critical(NULL, tr("Write Error"), tr("Disk is not large enough for the specified image."));
             removeLockOnVolume(hVolume);
@@ -695,7 +695,7 @@ void MainWindow::on_bRead_clicked()
                 generateMd5(myFile.toLatin1().data());
             }
         }
-	updateMd5CopyButton();
+    updateMd5CopyButton();
     }
     else
     {

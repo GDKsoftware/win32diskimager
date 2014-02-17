@@ -24,10 +24,10 @@
 #define DISK_H
 
 #ifndef WINVER
-#define WINVER 0x0500
+#define WINVER 0x0601
 #endif
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QString>
 #include <cstdio>
 #include <cstdlib>
@@ -46,49 +46,6 @@ typedef struct _DEVICE_NUMBER
 
 // IOCTL control code
 #define IOCTL_STORAGE_QUERY_PROPERTY   CTL_CODE(IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-// retrieve the storage device descriptor data for a device.
-typedef struct _STORAGE_DEVICE_DESCRIPTOR
-{
-    ULONG  Version;
-    ULONG  Size;
-    UCHAR  DeviceType;
-    UCHAR  DeviceTypeModifier;
-    BOOLEAN  RemovableMedia;
-    BOOLEAN  CommandQueueing;
-    ULONG  VendorIdOffset;
-    ULONG  ProductIdOffset;
-    ULONG  ProductRevisionOffset;
-    ULONG  SerialNumberOffset;
-    STORAGE_BUS_TYPE  BusType;
-    ULONG  RawPropertiesLength;
-    UCHAR  RawDeviceProperties[1];
-} STORAGE_DEVICE_DESCRIPTOR, *PSTORAGE_DEVICE_DESCRIPTOR;
-
-// retrieve the properties of a storage device or adapter.
-typedef enum _STORAGE_QUERY_TYPE
-{
-    PropertyStandardQuery = 0,
-    PropertyExistsQuery,
-    PropertyMaskQuery,
-    PropertyQueryMaxDefined
-} STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
-
-// retrieve the properties of a storage device or adapter.
-typedef enum _STORAGE_PROPERTY_ID
-{
-    StorageDeviceProperty = 0,
-    StorageAdapterProperty,
-    StorageDeviceIdProperty
-} STORAGE_PROPERTY_ID, *PSTORAGE_PROPERTY_ID;
-
-// retrieve the properties of a storage device or adapter.
-typedef struct _STORAGE_PROPERTY_QUERY
-{
-    STORAGE_PROPERTY_ID  PropertyId;
-    STORAGE_QUERY_TYPE  QueryType;
-    UCHAR  AdditionalParameters[1];
-} STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
 
 HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access);
 HANDLE getHandleOnDevice(int device, DWORD access);

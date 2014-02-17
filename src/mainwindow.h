@@ -24,10 +24,10 @@
 #define MAINWINDOW_H
 
 #ifndef WINVER
-#define WINVER 0x0500
+#define WINVER 0x0601
 #endif
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QClipboard>
 #include <cstdio>
 #include <cstdlib>
@@ -38,38 +38,38 @@
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
-	Q_OBJECT
-	public:
-		MainWindow(QWidget *parent=0);
-		~MainWindow();
-		void closeEvent(QCloseEvent *event);
+    Q_OBJECT
+    public:
+        MainWindow(QWidget *parent=0);
+        ~MainWindow();
+        void closeEvent(QCloseEvent *event);
         enum Status {STATUS_IDLE=0, STATUS_READING, STATUS_WRITING, STATUS_EXIT, STATUS_CANCELED};
-		bool winEvent ( MSG * msg, long * result );
-	protected slots:
-		void on_tbBrowse_clicked();
-		void on_bCancel_clicked();
-		void on_bWrite_clicked();
-		void on_bRead_clicked();
-		void on_leFile_textChanged();
-		void on_leFile_editingFinished();
-		void on_md5CheckBox_stateChanged();
-		void on_bMd5Copy_clicked();
-	private:
-		// find attached devices
-		void getLogicalDrives();
-		void setReadWriteButtonState();
+        bool winEvent ( MSG * msg, long * result );
+    protected slots:
+        void on_tbBrowse_clicked();
+        void on_bCancel_clicked();
+        void on_bWrite_clicked();
+        void on_bRead_clicked();
+        void on_leFile_textChanged();
+        void on_leFile_editingFinished();
+        void on_md5CheckBox_stateChanged();
+        void on_bMd5Copy_clicked();
+    private:
+        // find attached devices
+        void getLogicalDrives();
+        void setReadWriteButtonState();
 
-		HANDLE hVolume;
-		HANDLE hFile;
-		HANDLE hRawDisk;
-		unsigned long long sectorsize;
-		int status;
-		char *sectorData;
-		QTime timer;
-		QClipboard *clipboard;
-		void generateMd5(char *filename);
-		QString myHomeDir;
-		void updateMd5CopyButton();
+        HANDLE hVolume;
+        HANDLE hFile;
+        HANDLE hRawDisk;
+        unsigned long long sectorsize;
+        int status;
+        char *sectorData;
+        QTime timer;
+        QClipboard *clipboard;
+        void generateMd5(char *filename);
+        QString myHomeDir;
+        void updateMd5CopyButton();
 };
 
 #endif // MAINWINDOW_H
