@@ -55,7 +55,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="235"/>
-        <source>从 &apos 读取数据;设备&apos; 到 &apos;映像文件&apos;</source>
+        <source>閱讀從“設備”的數據並寫入'文件'</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
