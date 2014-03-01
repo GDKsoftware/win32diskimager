@@ -21,9 +21,9 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf32}\ImageWriter
-DefaultGroupName=Accessories\Image Writer
+DefaultGroupName=Image Writer
 LicenseFile=License.txt
-OutputBaseFilename=win32diskimager-setup
+OutputBaseFilename={#MyAppName}-setup-{#MyAppVersion}
 SetupIconFile=setup.ico
 Compression=lzma2
 SolidCompression=yes
@@ -41,6 +41,8 @@ Source: "Changelog.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "GPL-2"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LGPL-2.1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "platforms\*.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
+Source: "*.qm"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.txt"; DestDir: "{app}"; Flags: ignoreversion isreadme
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
