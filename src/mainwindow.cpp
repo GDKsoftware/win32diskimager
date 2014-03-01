@@ -759,8 +759,10 @@ char FirstDriveFromMask (ULONG unitmask)
 
 // register to receive notifications when USB devices are inserted or removed
 // adapted from http://www.known-issues.net/qt/qt-detect-event-windows.html
-bool MainWindow::winEvent ( MSG * msg, long * result )
+bool MainWindow::nativeEvent(const QByteArray &type, void *vMsg, long *result)
 {
+    Q_UNUSED(type);
+    MSG *msg = (MSG*)vMsg;
     if(msg->message == WM_DEVICECHANGE)
     {
         PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)msg->lParam;
