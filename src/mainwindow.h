@@ -10,14 +10,11 @@
  *  GNU General Public License for more details.                      *
  *                                                                    *
  *  You should have received a copy of the GNU General Public License *
- *  along with this program; if not, write to the Free Software       *
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor,                *
- *  Boston, MA  02110-1301, USA.                                      *
- *                                                                    *
+ *  along with this program; if not, see http://gnu.org/licenses/
  *  ---                                                               *
  *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
- *  Copyright (C) 2009-2013 ImageWriter developers                   *
- *                           https://launchpad.net/~image-writer-devs *
+ *  Copyright (C) 2009-2014 ImageWriter developers                    *
+ *                          http://launchpad.net/~image-writer-devs   *
  **********************************************************************/
 
 #ifndef MAINWINDOW_H

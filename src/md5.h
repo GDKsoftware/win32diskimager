@@ -1,23 +1,3 @@
-// Example usage
-//
-//Main.cpp
-//
-//#include "md5.h"
-//
-//int main()
-//{
-//  MD5 md5 ;
-//  puts( md5.digestString( "HELLO THERE I AM MD5!" ) ) ;
-//
-//  // print the digest for a binary file on disk.
-//  puts( md5.digestFile( "C:\\WINDOWS\\notepad.exe" ) ) ;
-//
-//  return 0;
-//}
-
-#ifndef MD5_H
-#define MD5_H
-
 // Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
 // rights reserved.
 
@@ -42,6 +22,9 @@
 // The original md5 implementation avoids external libraries.
 // This version has dependency on stdio.h for file input and
 // string.h for memcpy.
+#ifndef MD5_H
+#define MD5_H
+
 #include <cstdio>
 #include <cstring>
 

@@ -10,14 +10,11 @@
  *  GNU General Public License for more details.                      *
  *                                                                    *
  *  You should have received a copy of the GNU General Public License *
- *  along with this program; if not, write to the Free Software       *
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor,                *
- *  Boston, MA  02110-1301, USA.                                      *
- *                                                                    *
+ *  along with this program; if not, see http://gnu.org/licenses/
  *  ---                                                               *
  *  Copyright (C) 2009, Justin Davis <tuxdavis@gmail.com>             *
- *  Copyright (C) 2009, 2012 ImageWriter developers                   *
- *                           https://launchpad.net/~image-writer-devs *
+ *  Copyright (C) 2009-2014 ImageWriter developers                    *
+ *                          https://launchpad.net/~image-writer-devs  *
  **********************************************************************/
 
 #ifndef WINVER
@@ -425,7 +422,8 @@ bool checkDriveType(char *name, ULONG *pid)
             // removable or (fixed AND on the usb bus, SD, or MMC (undefined in XP/mingw))
             if(GetDisksProperty(hDevice, pDevDesc, &deviceInfo) &&
                     ( ((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))
-                      || ( (driveType == DRIVE_FIXED) && ((pDevDesc->BusType == BusTypeUsb) || (pDevDesc->BusType == 0xC) || (pDevDesc->BusType == 0xD)) ) ) )
+                      || ( (driveType == DRIVE_FIXED) && ((pDevDesc->BusType == BusTypeUsb)
+                      || (pDevDesc->BusType == BusTypeSd ) || (pDevDesc->BusType == BusTypeMmc )) ) ) )
             {
                 // ensure that the drive is actually accessible
                 // multi-card hubs were reporting "removable" even when empty
