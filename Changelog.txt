@@ -1,3 +1,13 @@
+Release 0.9.5
+=============
+Update copyright headers, bump for point release
+Fixed broken translation (caused build error).
+Converted build environment to QT 5.2/Mingw 4.8
+Added Italian translation (LP#1270388)
+Added translations.
+Start work on installer with Innosetup.
+
+
 Release 0.9
 ===========
 Added custom file dialog window.

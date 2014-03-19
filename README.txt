@@ -1,9 +1,9 @@
 Image Writer for Microsoft Windows
-Release 0.9 - Unnamed Edition
+Release 0.9.5 - Unnamed Edition 2: The oddly released sequel
 ======
 About:
 ======
-This utility is used to write img files to SD and USB cards.
+This utility is used to write img files to SD and USB memory devices.
 Simply run the utility, point it at your img, and then select the
 removable device to write to.
 
@@ -20,22 +20,19 @@ no responsibility for these possible events.
 Build Instructions:
 ===================
 Requirements:
-1. MinGW (20120426 from http://mingw.org)
-2. Qt for Windows SDK (currently using 4.8.4 mingw from http://qt-project.org)
+1. Now using QT 5.2.1/MinGW 4.8.  Snapshot available in the Build Tools directory at
+https://sourceforge.net/projects/win32diskimager/files/Build%20Tools/
 
 Short Version:
-1. Install the Qt Full SDK
-2. Run compile.bat -OR- run qmake and then make in the src folder.
-3. Compile.bat may be edited to change installation paths of MinGW and QT
+1. Install the Qt Full SDK and use QT Creator to build.  Included batch files 
+   no longer updated and may be deleted in the future.
 
 =============
 New Features:
 =============
-Added a custom file dialog box to solve the issues between opening a non-existant 
-file and saving a read-only file.
-
-Fixed bug LP:1118217 - can not select SD card to write image to on select computers.
-Fixed bug LP:1191156 File-Open dialog does not accept non-existing img files as target.
+Build support for QT 5.2/MinGW 4.8.
+Some additional language translations.
+Now uses Innosetup to create an Installer.
 
 =============
 Known Issues:
@@ -43,7 +40,7 @@ Known Issues:
 
 *  Lack of reformat capabilities.
 *  Lack of file compression support
-*  Lack of an installer.  
+*  Does not work with USB Floppy drives.
 
 These are being looked into for future releases.
 
