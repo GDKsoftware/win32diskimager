@@ -21,7 +21,7 @@
     <message>
         <location filename="mainwindow.ui" line="65"/>
         <source>Device</source>
-        <translation type="unfinished">Dispoditivo</translation>
+        <translation type="unfinished">Dispositivo</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="122"/>
@@ -31,12 +31,12 @@
     <message>
         <location filename="mainwindow.ui" line="141"/>
         <source>MD5 Hash: </source>
-        <translation type="unfinished">Hash MD5:</translation>
+        <translation type="unfinished">Hash MD5: </translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="164"/>
         <source>Progress</source>
-        <translation type="unfinished">Progresso</translation>
+        <translation type="unfinished">Avanzamento</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="182"/>
@@ -46,7 +46,7 @@
     <message>
         <location filename="mainwindow.ui" line="216"/>
         <source>Cancel current process.</source>
-        <translation type="unfinished">Arresta il processo.</translation>
+        <translation type="unfinished">Annulla il processo.</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="219"/>
@@ -87,7 +87,7 @@
         <location filename="mainwindow.cpp" line="101"/>
         <location filename="mainwindow.cpp" line="111"/>
         <source>Exit?</source>
-        <translation type="unfinished">Esci?</translation>
+        <translation type="unfinished">Vuoi uscire?</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="101"/>
@@ -116,7 +116,7 @@ Sei sicuro di voler uscire?</translation>
     <message>
         <location filename="mainwindow.cpp" line="194"/>
         <source>Cancel?</source>
-        <translation type="unfinished">Annulla?</translation>
+        <translation type="unfinished">Annullare?</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="194"/>
@@ -310,7 +310,7 @@ Errore %1: %2</translation>
         <location filename="disk.cpp" line="144"/>
         <source>An error occurred when attempting to dismount the volume.
 Error %1: %2</source>
-        <translation type="unfinished">Errore nelcercare di smontare il volume.
+        <translation type="unfinished">Errore nel cercare di smontare il volume.
 Errore %1: %2</translation>
     </message>
     <message>
@@ -334,7 +334,7 @@ Errore %1: %2</translation>
         <location filename="disk.cpp" line="195"/>
         <source>An error occurred when attempting to write data to handle.
 Error %1: %2</source>
-        <translation type="unfinished">Errore nello scrivee i dati in un handle.
+        <translation type="unfinished">Errore nello scrivere i dati su un handle.
 Errore %1: %2</translation>
     </message>
     <message>
@@ -382,7 +382,7 @@ Errore %1: %2</translation>
 This usually means something is currently accessing the device; please close all applications and try again.
 
 Error %1: %2</source>
-        <translation type="unfinished">Errore nel leggerele proprietà.
+        <translation type="unfinished">Errore nel leggere le proprietà.
 Di solito significa che qualcosa sta accedendo al dispositivo; per cortesia chiudi tutte le applicazioni e riprova.
 
 Errore %1: %2</translation>
