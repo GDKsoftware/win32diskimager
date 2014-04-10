@@ -32,6 +32,7 @@
 #include <winioctl.h>
 #include "ui_mainwindow.h"
 #include "disk.h"
+#include "elapsedtimer.h"
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -59,10 +60,12 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         HANDLE hVolume;
         HANDLE hFile;
         HANDLE hRawDisk;
+        static const unsigned short ONE_SEC_IN_MS = 1000;
         unsigned long long sectorsize;
         int status;
         char *sectorData;
-        QTime timer;
+        QTime update_timer;
+        ElapsedTimer *elapsed_timer = NULL;
         QClipboard *clipboard;
         void generateMd5(char *filename);
         QString myHomeDir;

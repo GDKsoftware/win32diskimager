@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QStringList dirStack;
     QString downloadPath = "";
     setupUi(this);
+    elapsed_timer = new ElapsedTimer();
+    statusbar->addPermanentWidget(elapsed_timer);   // "addpermanent" puts it on the RHS of the statusbar
     getLogicalDrives();
     status = STATUS_IDLE;
     progressbar->reset();
@@ -59,8 +61,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     updateMd5CopyButton();
     setReadWriteButtonState();
-    QString myver = tr("Version: %1").arg(VER);
-    VerLabel->setText(myver);
     sectorData = NULL;
     sectorsize = 0ul;
 
@@ -110,6 +110,11 @@ MainWindow::~MainWindow()
     {
         delete sectorData;
         sectorData = NULL;
+    }
+    if (elapsed_timer != NULL)
+    {
+        delete elapsed_timer;
+        elapsed_timer = NULL;
     }
 }
 
@@ -384,24 +389,34 @@ void MainWindow::on_bWrite_clicked()
             numsectors = getFileSizeInSectors(hFile, sectorsize);
             if (numsectors > availablesectors)
             {
-                QMessageBox::critical(NULL, tr("Write Error"),
-                                      tr("Not enough space on disk: Size: %1 sectors  Available: %2 sectors  Sector size: %3").arg(numsectors).arg(availablesectors).arg(sectorsize));
-                removeLockOnVolume(hVolume);
-                CloseHandle(hRawDisk);
-                CloseHandle(hFile);
-                CloseHandle(hVolume);
-                status = STATUS_IDLE;
-                hVolume = INVALID_HANDLE_VALUE;
-                hFile = INVALID_HANDLE_VALUE;
-                hRawDisk = INVALID_HANDLE_VALUE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
-                return;
+                if(QMessageBox::warning(NULL, tr("Not enough available space!"),
+                                        tr("More space required than is available:\n  Required: %1 sectors\n  Available: %2 sectors\n  Sector size: %3\n\nContinue Anyway?")
+                                        .arg(numsectors).arg(availablesectors).arg(sectorsize),
+                                        QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Ok)
+                {
+                    // truncate the image at the device size...
+                    numsectors = availablesectors;
+                }
+                else    // Cancel
+                {
+                    removeLockOnVolume(hVolume);
+                    CloseHandle(hRawDisk);
+                    CloseHandle(hFile);
+                    CloseHandle(hVolume);
+                    status = STATUS_IDLE;
+                    hVolume = INVALID_HANDLE_VALUE;
+                    hFile = INVALID_HANDLE_VALUE;
+                    hRawDisk = INVALID_HANDLE_VALUE;
+                    bCancel->setEnabled(false);
+                    setReadWriteButtonState();
+                    return;
+                }
             }
 
             progressbar->setRange(0, (numsectors == 0ul) ? 100 : (int)numsectors);
             lasti = 0ul;
-            timer.start();
+            update_timer.start();
+            elapsed_timer->start();
             for (i = 0ul; i < numsectors && status == STATUS_WRITING; i += 1024ul)
             {
                 sectorData = readSectorDataFromHandle(hFile, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
@@ -440,11 +455,12 @@ void MainWindow::on_bWrite_clicked()
                 delete sectorData;
                 sectorData = NULL;
                 QCoreApplication::processEvents();
-                if (timer.elapsed() >= 1000)
+                if (update_timer.elapsed() >= ONE_SEC_IN_MS)
                 {
-                    mbpersec = (((double)sectorsize * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
+                    mbpersec = (((double)sectorsize * (i - lasti)) * ((float)ONE_SEC_IN_MS / update_timer.elapsed())) / 1024.0 / 1024.0;
                     statusbar->showMessage(QString("%1MB/s").arg(mbpersec));
-                    timer.start();
+                    elapsed_timer->update(i, numsectors);
+                    update_timer.start();
                     lasti = i;
                 }
                 progressbar->setValue(i);
@@ -495,6 +511,7 @@ void MainWindow::on_bWrite_clicked()
         close();
     }
     status = STATUS_IDLE;
+    elapsed_timer->stop();
 }
 
 void MainWindow::on_bRead_clicked()
@@ -617,7 +634,8 @@ void MainWindow::on_bRead_clicked()
             progressbar->setRange(0, (int)numsectors);
         }
         lasti = 0ul;
-        timer.start();
+        update_timer.start();
+        elapsed_timer->start();
         for (i = 0ul; i < numsectors && status == STATUS_READING; i += 1024ul)
         {
             sectorData = readSectorDataFromHandle(hRawDisk, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
@@ -655,11 +673,12 @@ void MainWindow::on_bRead_clicked()
             }
             delete sectorData;
             sectorData = NULL;
-            if (timer.elapsed() >= 1000)
+            if (update_timer.elapsed() >= ONE_SEC_IN_MS)
             {
-                mbpersec = (((double)sectorsize * (i - lasti)) * (1000.0 / timer.elapsed())) / 1024.0 / 1024.0;
+                mbpersec = (((double)sectorsize * (i - lasti)) * ((float)ONE_SEC_IN_MS / update_timer.elapsed())) / 1024.0 / 1024.0;
                 statusbar->showMessage(QString("%1MB/s").arg(mbpersec));
-                timer.start();
+                update_timer.start();
+                elapsed_timer->update(i, numsectors);
                 lasti = i;
             }
             progressbar->setValue(i);
@@ -703,6 +722,7 @@ void MainWindow::on_bRead_clicked()
         close();
     }
     status = STATUS_IDLE;
+    elapsed_timer->stop();
 }
 
 // getLogicalDrives sets cBoxDevice with any logical drives found, as long

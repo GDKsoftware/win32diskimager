@@ -17,29 +17,41 @@
  *                          https://launchpad.net/~image-writer-devs  *
  **********************************************************************/
 
+#ifndef ELAPSEDTIMER_H
+#define ELAPSEDTIMER_H
+
 #ifndef WINVER
 #define WINVER 0x0601
 #endif
 
-#include <QApplication>
-#include <cstdio>
-#include <cstdlib>
-#include <windows.h>
-#include <winioctl.h>
-#include "disk.h"
-#include "mainwindow.h"
+#include <QtWidgets>
+#include <QLabel>
+#include <QTime>
+#include <QString>
+//#include <cstdio>
+//#include <cstdlib>
+//#include <windows.h>
+//#include <winioctl.h>
 
-int main(int argc, char *argv[])
+class ElapsedTimer : public QLabel
 {
-    QApplication app(argc, argv);
-    app.setApplicationDisplayName(VER);
+    Q_OBJECT
 
-    QString locale = QLocale::system().name();
-    QTranslator translator;
-    translator.load(QString("diskimager_")+ locale);
-    app.installTranslator(&translator);
+public:
+    ElapsedTimer(QWidget *parent = 0);
+    ~ElapsedTimer();
+    int ms();
+    void update(unsigned long long progress, unsigned long long total);
+    void start();
+    void stop();
 
-    MainWindow mainwindow;
-    mainwindow.show();
-    return app.exec();
-}
+private:
+//    QLabel *lDisplay;
+    QTime *timer;
+    static const unsigned short MS_PER_SEC = 1000;
+    static const unsigned short SECS_PER_MIN = 60;
+    static const unsigned short MINS_PER_HOUR = 60;
+    static const unsigned short SECS_PER_HOUR = (SECS_PER_MIN * MINS_PER_HOUR);
+};
+
+#endif // ELAPSEDTIMER_H

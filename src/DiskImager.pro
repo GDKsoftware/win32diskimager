@@ -37,14 +37,16 @@ QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2009-2014 Windows ImageWriter Team"
 # Input
 HEADERS += disk.h\
            mainwindow.h\
-           droppablelineedit.h
+           droppablelineedit.h \
+    elapsedtimer.h
 
 FORMS += mainwindow.ui
 
 SOURCES += disk.cpp\
            main.cpp\
            mainwindow.cpp\
-           droppablelineedit.cpp
+           droppablelineedit.cpp \
+    elapsedtimer.cpp
 
 RESOURCES += gui_icons.qrc
 
