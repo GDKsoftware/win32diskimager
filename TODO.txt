@@ -2,15 +2,11 @@
 
 
 Bug fixes:
-    Exclusive lock when reading files (actually need to open the file read-only so other instances can run).
     Drag & Drop in Windows 7
     USB Floppy (support or specifically remove from device list)
     Issue with default directory still?  Need to test. 
 
 Features:
-    Size matters
     Compression support
     Write verification
     Reformat device
-    Time stat
-    
