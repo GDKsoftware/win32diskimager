@@ -583,6 +583,23 @@ void MainWindow::on_bRead_clicked()
             return;
         }
         numsectors = getNumberOfSectors(hRawDisk, &sectorsize);
+        if(partitionCheckBox->isChecked())
+        {
+            // Read MBR partition table
+            sectorData = readSectorDataFromHandle(hRawDisk, 0, 1ul, 512ul);
+            numsectors = 1ul;
+            // Read partition information
+            for (i=0ul; i<4ul; i++)
+            {
+                uint32_t partitionStartSector = *((uint32_t*) (sectorData + 0x1BE + 8 + 16*i));
+                uint32_t partitionNumSectors = *((uint32_t*) (sectorData + 0x1BE + 12 + 16*i));
+                // Set numsectors to end of last partition
+                if (partitionStartSector + partitionNumSectors > numsectors)
+                {
+                    numsectors = partitionStartSector + partitionNumSectors;
+                }
+            }
+        }
         filesize = getFileSizeInSectors(hFile, sectorsize);
         if (filesize >= numsectors)
         {
