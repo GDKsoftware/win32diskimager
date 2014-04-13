@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>405</width>
-    <height>175</height>
+    <height>186</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -21,22 +21,7 @@
     <normaloff>:/images/images/Win32DiskImager.png</normaloff>:/images/images/Win32DiskImager.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout">
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
+   <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <layout class="QHBoxLayout">
       <item>
@@ -172,7 +157,7 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>4</width>
+              <width>13</width>
               <height>20</height>
              </size>
             </property>
@@ -217,13 +202,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="partitionCheckBox">
-            <property name="text">
-             <string>Read Only Allocated Partitions</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QLabel" name="md5label">
             <property name="enabled">
              <bool>false</bool>
@@ -241,6 +219,13 @@
        </layout>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="partitionCheckBox">
+      <property name="text">
+       <string>Read Only Allocated Partitions</string>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QGroupBox" name="groupBox_5">
@@ -370,6 +355,10 @@
      </layout>
     </item>
    </layout>
+   <zorder>groupBox_5</zorder>
+   <zorder>partitionCheckBox</zorder>
+   <zorder>progressbar</zorder>
+   <zorder>partitionCheckBox</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
