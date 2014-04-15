@@ -161,7 +161,7 @@ char *readSectorDataFromHandle(HANDLE handle, unsigned long long startsector, un
                               QObject::tr("An error occurred when attempting to read data from handle.\n"
                                           "Error %1: %2").arg(GetLastError()).arg(errText));
         LocalFree(errormessage);
-        delete data;
+        delete[] data;
         data = NULL;
     }
     if (bytesread < (sectorsize * numsectors))
@@ -445,7 +445,7 @@ bool checkDriveType(char *name, ULONG *pid)
                 }
             }
 
-            delete pDevDesc;
+            delete[] pDevDesc;
             CloseHandle(hDevice);
         }
 

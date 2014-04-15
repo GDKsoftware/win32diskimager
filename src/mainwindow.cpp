@@ -31,6 +31,8 @@
 #include <winioctl.h>
 #include <dbt.h>
 #include <shlobj.h>
+#include <iostream>
+#include <sstream>
 
 #include "disk.h"
 #include "mainwindow.h"
@@ -108,7 +110,7 @@ MainWindow::~MainWindow()
     }
     if (sectorData != NULL)
     {
-        delete sectorData;
+        delete[] sectorData;
         sectorData = NULL;
     }
     if (elapsed_timer != NULL)
@@ -389,10 +391,37 @@ void MainWindow::on_bWrite_clicked()
             numsectors = getFileSizeInSectors(hFile, sectorsize);
             if (numsectors > availablesectors)
             {
+                bool datafound = false;
+                i = availablesectors;
+                unsigned long nextchunksize = 0;
+                unsigned long total = 0;
+                while ( (i < numsectors) && (datafound == false) )
+                {
+                    nextchunksize = ((numsectors - i) >= 1024ul) ? 1024ul : (numsectors - i);
+                    sectorData = readSectorDataFromHandle(hFile, i, nextchunksize, sectorsize);
+                    for (unsigned int j=0; j < (nextchunksize * sectorsize); j++)
+                    {
+                        total += sectorData[j];
+                    }
+                    if(total > 0)
+                    {
+                        datafound = true;
+                    }
+                    i += nextchunksize;
+                }
+                // delete the allocated sectorData
+                delete[] sectorData;
+                sectorData = NULL;
+                // build the string for the warning dialog
+                std::ostringstream msg;
+                msg << "More space required than is available:"
+                    << "\n  Required: " << numsectors << " sectors"
+                    << "\n  Available: " << availablesectors << " sectors"
+                    << "\n  Sector Size: " << sectorsize
+                    << "\n\nThe extra space " << ((datafound) ? "DOES" : "does not") << " appear to contain data"
+                    << "\n\nContinue Anyway?";
                 if(QMessageBox::warning(NULL, tr("Not enough available space!"),
-                                        tr("More space required than is available:\n  Required: %1 sectors\n  Available: %2 sectors\n  Sector size: %3\n\nContinue Anyway?")
-                                        .arg(numsectors).arg(availablesectors).arg(sectorsize),
-                                        QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Ok)
+                                        tr(msg.str().c_str()), QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Ok)
                 {
                     // truncate the image at the device size...
                     numsectors = availablesectors;
@@ -422,13 +451,11 @@ void MainWindow::on_bWrite_clicked()
                 sectorData = readSectorDataFromHandle(hFile, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
                 if (sectorData == NULL)
                 {
-                    delete sectorData;
                     removeLockOnVolume(hVolume);
                     CloseHandle(hRawDisk);
                     CloseHandle(hFile);
                     CloseHandle(hVolume);
                     status = STATUS_IDLE;
-                    sectorData = NULL;
                     hRawDisk = INVALID_HANDLE_VALUE;
                     hFile = INVALID_HANDLE_VALUE;
                     hVolume = INVALID_HANDLE_VALUE;
@@ -438,7 +465,7 @@ void MainWindow::on_bWrite_clicked()
                 }
                 if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
                 {
-                    delete sectorData;
+                    delete[] sectorData;
                     removeLockOnVolume(hVolume);
                     CloseHandle(hRawDisk);
                     CloseHandle(hFile);
@@ -452,7 +479,7 @@ void MainWindow::on_bWrite_clicked()
                     setReadWriteButtonState();
                     return;
                 }
-                delete sectorData;
+                delete[] sectorData;
                 sectorData = NULL;
                 QCoreApplication::processEvents();
                 if (update_timer.elapsed() >= ONE_SEC_IN_MS)
@@ -470,7 +497,6 @@ void MainWindow::on_bWrite_clicked()
             CloseHandle(hRawDisk);
             CloseHandle(hFile);
             CloseHandle(hVolume);
-            sectorData = NULL;
             hRawDisk = INVALID_HANDLE_VALUE;
             hFile = INVALID_HANDLE_VALUE;
             hVolume = INVALID_HANDLE_VALUE;
@@ -641,13 +667,11 @@ void MainWindow::on_bRead_clicked()
             sectorData = readSectorDataFromHandle(hRawDisk, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
             if (sectorData == NULL)
             {
-                delete sectorData;
                 removeLockOnVolume(hVolume);
                 CloseHandle(hRawDisk);
                 CloseHandle(hFile);
                 CloseHandle(hVolume);
                 status = STATUS_IDLE;
-                sectorData = NULL;
                 hRawDisk = INVALID_HANDLE_VALUE;
                 hFile = INVALID_HANDLE_VALUE;
                 hVolume = INVALID_HANDLE_VALUE;
@@ -657,7 +681,7 @@ void MainWindow::on_bRead_clicked()
             }
             if (!writeSectorDataToHandle(hFile, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
             {
-                delete sectorData;
+                delete[] sectorData;
                 removeLockOnVolume(hVolume);
                 CloseHandle(hRawDisk);
                 CloseHandle(hFile);
@@ -671,7 +695,7 @@ void MainWindow::on_bRead_clicked()
                 setReadWriteButtonState();
                 return;
             }
-            delete sectorData;
+            delete[] sectorData;
             sectorData = NULL;
             if (update_timer.elapsed() >= ONE_SEC_IN_MS)
             {
@@ -688,7 +712,6 @@ void MainWindow::on_bRead_clicked()
         CloseHandle(hRawDisk);
         CloseHandle(hFile);
         CloseHandle(hVolume);
-        sectorData = NULL;
         hRawDisk = INVALID_HANDLE_VALUE;
         hFile = INVALID_HANDLE_VALUE;
         hVolume = INVALID_HANDLE_VALUE;
