@@ -394,20 +394,27 @@ void MainWindow::on_bWrite_clicked()
                 bool datafound = false;
                 i = availablesectors;
                 unsigned long nextchunksize = 0;
-                unsigned long total = 0;
                 while ( (i < numsectors) && (datafound == false) )
                 {
                     nextchunksize = ((numsectors - i) >= 1024ul) ? 1024ul : (numsectors - i);
                     sectorData = readSectorDataFromHandle(hFile, i, nextchunksize, sectorsize);
-                    for (unsigned int j=0; j < (nextchunksize * sectorsize); j++)
+                    if(sectorData == NULL)
                     {
-                        total += sectorData[j];
+                        // if there's an error verifying the truncated data, just move on to the
+                        //  write, as we don't care about an error in a section that we're not writing...
+                        i = numsectors + 1;
+                    } else {
+                        unsigned int j = 0;
+                        unsigned limit = nextchunksize * sectorsize;
+                        while ( (datafound == false) && ( j < limit ) )
+                        {
+                            if(sectorData[j++] != 0)
+                            {
+                                datafound = true;
+                            }
+                        }
+                        i += nextchunksize;
                     }
-                    if(total > 0)
-                    {
-                        datafound = true;
-                    }
-                    i += nextchunksize;
                 }
                 // delete the allocated sectorData
                 delete[] sectorData;
