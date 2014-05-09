@@ -157,7 +157,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::on_tbBrowse_clicked()
 {
     // create a generic FileDialog
-    QFileDialog dialog(NULL, tr("Select a disk image"));
+    QFileDialog dialog(this, tr("Select a disk image"));
     dialog.setNameFilter(tr("Disk Images (*.img *.IMG);;*.*"));
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setViewMode(QFileDialog::Detail);
