@@ -127,7 +127,7 @@ void MainWindow::setReadWriteButtonState()
     QFileInfo fi(leFile->text());
 
     // set read and write buttons according to status of file/device
-    bRead->setEnabled(deviceSelected && fileSelected && fi.isWritable());
+    bRead->setEnabled(deviceSelected && fileSelected && (fi.exists() ? fi.isWritable() : true));
     bWrite->setEnabled(deviceSelected && fileSelected && fi.isReadable());
 }
 
