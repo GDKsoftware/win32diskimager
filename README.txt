@@ -30,9 +30,8 @@ Short Version:
 =============
 New Features:
 =============
-Build support for QT 5.2/MinGW 4.8.
+Add user defined file types capability.
 Some additional language translations.
-Now uses Innosetup to create an Installer.
 
 =============
 Known Issues:

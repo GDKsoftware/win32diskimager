@@ -124,10 +124,11 @@ void MainWindow::setReadWriteButtonState()
 {
     bool fileSelected = !(leFile->text().isEmpty());
     bool deviceSelected = (cboxDevice->count() > 0);
+    QFileInfo fi(leFile->text());
 
     // set read and write buttons according to status of file/device
-    bRead->setEnabled(deviceSelected && fileSelected);
-    bWrite->setEnabled(deviceSelected && fileSelected);
+    bRead->setEnabled(deviceSelected && fileSelected && fi.isWritable());
+    bWrite->setEnabled(deviceSelected && fileSelected && fi.isReadable());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -156,9 +157,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_tbBrowse_clicked()
 {
+    // See if there is a user-defined file extension.
+    QString fileType = qgetenv("DiskImagerFiles");
+    fileType.append(tr("Disk Images (*.img *.IMG);;*.*"));
     // create a generic FileDialog
     QFileDialog dialog(this, tr("Select a disk image"));
-    dialog.setNameFilter(tr("Disk Images (*.img *.IMG);;*.*"));
+    dialog.setNameFilter(fileType);
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setDirectory(myHomeDir);
