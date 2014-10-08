@@ -65,7 +65,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="251"/>
-        <source>Write data in &apos;Image File&apos; to &apos;Device&apos;</source>
+        <source>Write data from &apos;Image File&apos; to &apos;Device&apos;</source>
         <translation type="unfinished">Schreibe Image Datei auf den Datenträger</translation>
     </message>
     <message>

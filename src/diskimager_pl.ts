@@ -65,7 +65,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="251"/>
-        <source>Write data in &apos;Image File&apos; to &apos;Device&apos;</source>
+        <source>Write data from &apos;Image File&apos; to &apos;Device&apos;</source>
         <translatorcomment>prawdopodobnie oryginał zepsuty, EDIT(31.08.13): chyba jednak codziło tylko o nazwę pola.</translatorcomment>
         <translation type="unfinished">Zapisz dane w &quot;Plik Obrazu&apos; do &quot;Urządzenie&apos;</translation>
     </message>

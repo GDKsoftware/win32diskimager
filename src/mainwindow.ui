@@ -307,7 +307,7 @@
          </sizepolicy>
         </property>
         <property name="statusTip">
-         <string>Write data in 'Image File' to 'Device'</string>
+         <string>Write data from 'Image File' to 'Device'</string>
         </property>
         <property name="text">
          <string>Write</string>
