@@ -24,8 +24,8 @@
 #define WINVER 0x0601
 #endif
 
-#include <QtWidgets>
-#include <QString>
+#include "ui_helper.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <windows.h>
@@ -47,7 +47,7 @@ typedef struct _DEVICE_NUMBER
 HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access);
 HANDLE getHandleOnDevice(int device, DWORD access);
 HANDLE getHandleOnVolume(int volume, DWORD access);
-QString getDriveLabel(const char *drv);
+UIString getDriveLabel(const char *drv);
 bool getLockOnVolume(HANDLE handle);
 bool removeLockOnVolume(HANDLE handle);
 bool unmountVolume(HANDLE handle);

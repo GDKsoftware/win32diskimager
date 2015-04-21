@@ -21,7 +21,6 @@
 #define WINVER 0x0601
 #endif
 
-#include <QtWidgets>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -29,19 +28,17 @@
 #include <winioctl.h>
 #include "disk.h"
 
+#include "ui_helper.h"
+
+#include <string>
+
 HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access)
 {
     HANDLE hFile;
     hFile = CreateFileW(filelocation, access, (access == GENERIC_READ) ? FILE_SHARE_READ : 0, NULL, (access == GENERIC_READ) ? OPEN_EXISTING:CREATE_ALWAYS, 0, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
     {
-        wchar_t *errormessage=NULL;
-        ::FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0,
-                         (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("File Error"), QObject::tr("An error occurred when attempting to get a handle on the file.\n"
-                                                              "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
+		CUIHelper::criticalWithCurrentError(L"File Error", L"An error occurred when attempting to get a handle on the file.");
     }
     return hFile;
 }
@@ -49,17 +46,13 @@ HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access)
 HANDLE getHandleOnDevice(int device, DWORD access)
 {
     HANDLE hDevice;
-    QString devicename = QString("\\\\.\\PhysicalDrive%1").arg(device);
-    hDevice = CreateFile(devicename.toLatin1().data(), access, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+	std::wstring devicename(L"\\\\.\\PhysicalDrive");
+	devicename = devicename + std::to_wstring(device);
+
+    hDevice = CreateFile(devicename.c_str(), access, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     if (hDevice == INVALID_HANDLE_VALUE)
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Device Error"),
-                              QObject::tr("An error occurred when attempting to get a handle on the device.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
+		CUIHelper::criticalWithCurrentError(L"Device Error", L"An error occurred when attempting to get a handle on the device.");
     }
     return hDevice;
 }
@@ -67,18 +60,12 @@ HANDLE getHandleOnDevice(int device, DWORD access)
 HANDLE getHandleOnVolume(int volume, DWORD access)
 {
     HANDLE hVolume;
-    char volumename[] = "\\\\.\\A:";
+    wchar_t volumename[] = L"\\\\.\\A:";
     volumename[4] += volume;
     hVolume = CreateFile(volumename, access, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     if (hVolume == INVALID_HANDLE_VALUE)
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Volume Error"),
-                              QObject::tr("An error occurred when attempting to get a handle on the volume.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
+		CUIHelper::criticalWithCurrentError(L"Volume Error", L"An error occurred when attempting to get a handle on the volume.");
     }
     return hVolume;
 }
@@ -90,13 +77,7 @@ bool getLockOnVolume(HANDLE handle)
     bResult = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, NULL, 0, NULL, 0, &bytesreturned, NULL);
     if (!bResult)
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Lock Error"),
-                              QObject::tr("An error occurred when attempting to lock the volume.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
+		CUIHelper::criticalWithCurrentError(L"Lock Error", L"An error occurred when attempting to lock the volume.");
     }
     return (bResult);
 }
@@ -108,13 +89,7 @@ bool removeLockOnVolume(HANDLE handle)
     bResult = DeviceIoControl(handle, FSCTL_UNLOCK_VOLUME, NULL, 0, NULL, 0, &junk, NULL);
     if (!bResult)
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Unlock Error"),
-                              QObject::tr("An error occurred when attempting to unlock the volume.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
+		CUIHelper::criticalWithCurrentError(L"Unlock Error", L"An error occurred when attempting to unlock the volume.");
     }
     return (bResult);
 }
@@ -126,13 +101,7 @@ bool unmountVolume(HANDLE handle)
     bResult = DeviceIoControl(handle, FSCTL_DISMOUNT_VOLUME, NULL, 0, NULL, 0, &junk, NULL);
     if (!bResult)
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Dismount Error"),
-                              QObject::tr("An error occurred when attempting to dismount the volume.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
+		CUIHelper::criticalWithCurrentError(L"Dismount Error", L"An error occurred when attempting to dismount the volume.");
     }
     return (bResult);
 }
@@ -154,14 +123,9 @@ char *readSectorDataFromHandle(HANDLE handle, unsigned long long startsector, un
     SetFilePointer(handle, li.LowPart, &li.HighPart, FILE_BEGIN);
     if (!ReadFile(handle, data, sectorsize * numsectors, &bytesread, NULL))
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Read Error"),
-                              QObject::tr("An error occurred when attempting to read data from handle.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
-        delete[] data;
+		CUIHelper::criticalWithCurrentError(L"Read Error", L"An error occurred when attempting to read data from handle.");
+
+		delete[] data;
         data = NULL;
     }
     if (bytesread < (sectorsize * numsectors))
@@ -181,13 +145,7 @@ bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long long start
     bResult = WriteFile(handle, data, sectorsize * numsectors, &byteswritten, NULL);
     if (!bResult)
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Write Error"),
-                              QObject::tr("An error occurred when attempting to write data to handle.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
+		CUIHelper::criticalWithCurrentError(L"Write Error", L"An error occurred when attempting to write data from handle.");
     }
     return (bResult);
 }
@@ -200,14 +158,9 @@ unsigned long long getNumberOfSectors(HANDLE handle, unsigned long long *sectors
     bResult = DeviceIoControl(handle, IOCTL_DISK_GET_DRIVE_GEOMETRY_EX, NULL, 0, &diskgeometry, sizeof(diskgeometry), &junk, NULL);
     if (!bResult)
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Device Error"),
-                              QObject::tr("An error occurred when attempting to get the device's geometry.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
-        return 0;
+		CUIHelper::criticalWithCurrentError(L"Device Error", L"An error occurred when attempting to get the device's geometry.");
+
+		return 0;
     }
     if (sectorsize != NULL)
     {
@@ -222,15 +175,9 @@ unsigned long long getFileSizeInSectors(HANDLE handle, unsigned long long sector
     LARGE_INTEGER filesize;
     if(GetFileSizeEx(handle, &filesize) == 0)
     {
-        // error
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("File Error"),
-                              QObject::tr("An error occurred while getting the file size.\n"
-                                          "Error %1: %2").arg(GetLastError()).arg(errText));
-        LocalFree(errormessage);
-        retVal = 0;
+		CUIHelper::criticalWithCurrentError(L"File Error", L"An error occurred while getting the file size.");
+
+		retVal = 0;
     }
     else
     {
@@ -239,35 +186,33 @@ unsigned long long getFileSizeInSectors(HANDLE handle, unsigned long long sector
     return(retVal);
 }
 
-bool spaceAvailable(char *location, unsigned long long spaceneeded)
+bool spaceAvailable(const wchar_t *location, unsigned long long spaceneeded)
 {
     ULARGE_INTEGER freespace;
     BOOL bResult;
     bResult = GetDiskFreeSpaceEx(location, NULL, NULL, &freespace);
     if (!bResult)
     {
-        wchar_t *errormessage=NULL;
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-        QString errText = QString::fromUtf16((const ushort *)errormessage);
-        QMessageBox::critical(NULL, QObject::tr("Free Space Error"),
-                              QObject::tr("Failed to get the free space on drive %1.\n"
-                                          "Error %2: %3\n"
-                                          "Checking of free space will be skipped.").arg(location).arg(GetLastError()).arg(errText));
-        return true;
+		std::wstring errormessage(L"Failed to get the free space on drive ");
+		errormessage = errormessage + location + std::wstring(L". Checking of free space will be skipped.");
+
+		CUIHelper::criticalWithCurrentError(L"File Error", errormessage.c_str());
+
+		return true;
     }
     return (spaceneeded <= freespace.QuadPart);
 }
 
 // given a drive letter (ending in a slash), return the label for that drive
 // TODO make this more robust by adding input verification
-QString getDriveLabel(const char *drv)
+UIString getDriveLabel(const wchar_t *drv)
 {
-    QString retVal;
+    UIString retVal;
     int szNameBuf = MAX_PATH + 1;
-    char *nameBuf = NULL;
-    if( (nameBuf = (char *)calloc(szNameBuf, sizeof(char))) != 0 )
+    wchar_t *nameBuf = NULL;
+	if ((nameBuf = (wchar_t *)calloc(szNameBuf, sizeof(char))) != 0)
     {
-        ::GetVolumeInformationA(drv, nameBuf, szNameBuf, NULL,
+        ::GetVolumeInformationW(drv, nameBuf, szNameBuf, NULL,
                                         NULL, NULL, NULL, 0);
     }
 
@@ -276,11 +221,11 @@ QString getDriveLabel(const char *drv)
     //   if all succeeds, nameBuf will contain label
     if(nameBuf == NULL)
     {
-        retVal = QString("");
+		retVal = UIString(L"");
     }
     else
     {
-        retVal = QString(nameBuf);
+		retVal = UIString(nameBuf);
         free(nameBuf);
     }
 
@@ -312,14 +257,11 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
         if (!bResult)
         {
             retVal = false;
-            wchar_t *errormessage=NULL;
-            FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-            QString errText = QString::fromUtf16((const ushort *)errormessage);
-            QMessageBox::critical(NULL, QObject::tr("File Error"),
-                                  QObject::tr("An error occurred while getting the device number.\n"
-                                              "This usually means something is currently accessing the device;"
-                                              "please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errText));
-            LocalFree(errormessage);
+
+			CUIHelper::criticalWithCurrentError(L"File Error",
+				L"An error occurred while getting the device number.\n"
+				L"This usually means something is currently accessing the device;"
+				L"please close all applications and try again.\n");
         }
     }
     else
@@ -327,16 +269,13 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
         if (DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned,
                             (LPOVERLAPPED) NULL))
         {
-            wchar_t *errormessage=NULL;
-            FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-            QString errText = QString::fromUtf16((const ushort *)errormessage);
-            QMessageBox::critical(NULL, QObject::tr("File Error"),
-                                  QObject::tr("An error occurred while querying the properties.\n"
-                                              "This usually means something is currently accessing the device;"
-                                              " please close all applications and try again.\n\nError %1: %2").arg(GetLastError()).arg(errText));
-            LocalFree(errormessage);
+			CUIHelper::criticalWithCurrentError(L"File Error",
+				L"An error occurred while querying the properties.\n"
+				L"This usually means something is currently accessing the device;"
+				L"please close all applications and try again.\n");
         }
-            retVal = false;
+
+		retVal = false;
     }
 
     return(retVal);
@@ -395,7 +334,7 @@ bool checkDriveType(char *name, ULONG *pid)
     {
         return(retVal);
     }
-
+	/*
     driveType = GetDriveType(nameWithSlash);
     switch( driveType )
     {
@@ -457,6 +396,6 @@ bool checkDriveType(char *name, ULONG *pid)
     // free the strings allocated by slashify
     free(nameWithSlash);
     free(nameNoSlash);
-
+	*/
     return(retVal);
 }
