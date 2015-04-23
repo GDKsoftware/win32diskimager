@@ -281,75 +281,35 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
     return(retVal);
 }
 
-// some routines fail if there's no trailing slash in a name,
-// 		others fail if there is.  So this routine takes a name (trailing
-// 		slash or no), and creates 2 versions - one with the slash, and one w/o
-//
-// 		CALLER MUST FREE THE 2 RETURNED STRINGS
-bool slashify(char *str, char **slash, char **noSlash)
-{
-    bool retVal = false;
-    int strLen = strlen(str);
-    if ( strLen > 0 )
-    {
-        if ( *(str + strLen - 1) == '\\' )
-        {
-            // trailing slash exists
-            if (( (*slash = (char *)calloc( (strLen + 1), sizeof(char))) != NULL) &&
-                    ( (*noSlash = (char *)calloc(strLen, sizeof(char))) != NULL))
-            {
-                strncpy(*slash, str, strLen);
-                strncpy(*noSlash, *slash, (strLen - 1));
-                retVal = true;
-            }
-        }
-        else
-        {
-            // no trailing slash exists
-            if ( ((*slash = (char *)calloc( (strLen + 2), sizeof(char))) != NULL) &&
-                 ((*noSlash = (char *)calloc( (strLen + 1), sizeof(char))) != NULL) )
-            {
-                strncpy(*noSlash, str, strLen);
-                sprintf(*slash, "%s\\", *noSlash);
-                retVal = true;
-            }
-        }
-    }
-    return(retVal);
-}
-
-bool checkDriveType(char *name, ULONG *pid)
+bool checkDriveType(const std::wstring name, ULONG *pid)
 {
     HANDLE hDevice;
     PSTORAGE_DEVICE_DESCRIPTOR pDevDesc;
     DEVICE_NUMBER deviceInfo;
     bool retVal = false;
-    char *nameWithSlash;
-    char *nameNoSlash;
+    std::wstring nameWithSlash = name;
+    std::wstring nameNoSlash = name;
     int driveType;
     DWORD cbBytesReturned;
 
-    // some calls require no tailing slash, some require a trailing slash...
-    if ( !(slashify(name, &nameWithSlash, &nameNoSlash)) )
-    {
-        return(retVal);
-    }
-	/*
-    driveType = GetDriveType(nameWithSlash);
+	if (name.at(name.length() - 1) != '\\') {
+		nameWithSlash.append(L"\\");
+	} else {
+		nameNoSlash.resize(name.length() - 1);
+	}
+
+    driveType = GetDriveType(nameWithSlash.c_str());
     switch( driveType )
     {
     case DRIVE_REMOVABLE: // The media can be removed from the drive.
     case DRIVE_FIXED:     // The media cannot be removed from the drive.
-        hDevice = CreateFile(nameNoSlash, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+        hDevice = CreateFile(nameNoSlash.c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
         if (hDevice == INVALID_HANDLE_VALUE)
         {
-            wchar_t *errormessage=NULL;
-            FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, GetLastError(), 0, (LPWSTR)&errormessage, 0, NULL);
-            QString errText = QString::fromUtf16((const ushort *)errormessage);
-            QMessageBox::critical(NULL, QObject::tr("Volume Error"),
-                                  QObject::tr("An error occurred when attempting to get a handle on %3.\n"
-                                              "Error %1: %2").arg(GetLastError()).arg(errText).arg(nameWithSlash));
-            LocalFree(errormessage);
+			std::wstring errormessage = L"An error occurred when attempting to get a handle on ";
+			errormessage += nameWithSlash;
+			errormessage += L".\n";
+			CUIHelper::criticalWithCurrentError(L"Volume Error", errormessage.c_str());
         }
         else
         {
@@ -375,7 +335,7 @@ bool checkDriveType(char *name, ULONG *pid)
                     // IOCTL_STORAGE_CHECK_VERIFY2 fails on some devices under XP/Vista, try the other (slower) method, just in case.
                 {
                     CloseHandle(hDevice);
-                    hDevice = CreateFile(nameNoSlash, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+                    hDevice = CreateFile(nameNoSlash.c_str(), FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
                     if(DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
                     {
                         *pid = deviceInfo.DeviceNumber;
@@ -393,9 +353,5 @@ bool checkDriveType(char *name, ULONG *pid)
         retVal = false;
     }
 
-    // free the strings allocated by slashify
-    free(nameWithSlash);
-    free(nameNoSlash);
-	*/
     return(retVal);
 }

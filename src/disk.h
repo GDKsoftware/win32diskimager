@@ -57,6 +57,6 @@ bool writeSectorDataToHandle(HANDLE handle, char *data, unsigned long long start
 unsigned long long getNumberOfSectors(HANDLE handle, unsigned long long *sectorsize);
 unsigned long long getFileSizeInSectors(HANDLE handle, unsigned long long sectorsize);
 bool spaceAvailable(char *location, unsigned long long spaceneeded);
-bool checkDriveType(char *name, ULONG *pid);
+bool checkDriveType(const std::wstring name, ULONG *pid);
 
 #endif // DISK_H

@@ -24,12 +24,18 @@
     <ClCompile Include="..\src\ui_helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\deviceinfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\disk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ui_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\deviceinfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

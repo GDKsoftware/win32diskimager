@@ -1,14 +1,23 @@
 
 #include "disk.h"
+#include "deviceinfo.h"
 
 #include <iostream>
 
 class CProgressBar {
+protected:
+	INT64 Pos, Max;
+
 public:
 	void setRange(INT64 iPos, INT64 iMax) {
+		Pos = iPos;
+		Max = iMax;
 	}
 
 	void setValue(INT64 iPos) {
+		Pos = iPos;
+
+		std::wcout << std::to_wstring(Pos) << L" / " << std::to_wstring(Max) << std::endl;
 	}
 };
 
@@ -69,6 +78,8 @@ public:
 		if (!this->FileExists(sFilename)) {
 			throw new std::exception("File not found");
 		}
+
+		status = STATUS_WRITING;
 
 		hVolume = getHandleOnVolume(iVolumeID, GENERIC_WRITE);
 		if (hVolume == INVALID_HANDLE_VALUE)
@@ -176,19 +187,44 @@ int wmain(int argc, wchar_t *argv[]) {
 	std::locale::global(std::locale(""));
 
 	CDiskWriter writer;
+	CDeviceInfo devinfo;
+	std::vector<std::pair<wchar_t, ULONG>> v;
 
-	std::wstring volume, device, filename;
-	if (argc == 4) {
-		device = argv[1];
-		volume = argv[2];
-		filename = argv[3];
+	devinfo.getLogicalDrives(&v);
 
-		writer.WriteImageToDisk(filename, std::stoi(device), std::stoi(volume));
+	try {
+
+		std::wstring driveletter, filename;
+		if (argc == 3) {
+			driveletter = argv[1];
+			filename = argv[2];
+
+			int volume = 0;
+			int disk = 0;
+			for (auto p : v)
+			{
+				if (p.first == driveletter[0]) {
+					disk = p.second;
+					volume = p.first - 'A';
+				}
+			}
+
+			writer.WriteImageToDisk(filename, disk, volume);
+		}
+		else
+		{
+			CUIHelper::critical(L"Usage: Win32DiskImagerCLI.exe <driveletter> <filename>");
+
+			return 1;
+		}
+
 	}
-	else {
-		CUIHelper::critical(L"Usage: Win32DiskImagerCLI.exe <deviceid> <volumeid> <filename>");
+	catch (std::exception e)
+	{
+		CUIHelper::critical(e.what());
+
+		return 1;
 	}
 
-	char c;
-	std::cin >> c;
+	return 0;
 }
