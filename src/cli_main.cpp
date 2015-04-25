@@ -200,15 +200,25 @@ int wmain(int argc, wchar_t *argv[]) {
 
 			int volume = 0;
 			int disk = 0;
+			bool found = false;
 			for (auto p : v)
 			{
 				if (p.first == driveletter[0]) {
 					disk = p.second;
 					volume = p.first - 'A';
+					found = true;
 				}
 			}
 
-			writer.WriteImageToDisk(filename, disk, volume);
+			if (found) {
+				writer.WriteImageToDisk(filename, disk, volume);
+			}
+			else
+			{
+				CUIHelper::critical(L"Selected disk not supported");
+
+				return 1;
+			}
 		}
 		else
 		{

@@ -244,6 +244,7 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
     // specify the query type
     Query.PropertyId = StorageDeviceProperty;
     Query.QueryType = PropertyStandardQuery;
+	Query.AdditionalParameters[0] = 0;
 
     // Query using IOCTL_STORAGE_QUERY_PROPERTY
     bResult = ::DeviceIoControl(hDevice, IOCTL_STORAGE_QUERY_PROPERTY,
@@ -317,32 +318,37 @@ bool checkDriveType(const std::wstring name, ULONG *pid)
             pDevDesc = (PSTORAGE_DEVICE_DESCRIPTOR)new BYTE[arrSz];
             pDevDesc->Size = arrSz;
 
-            // get the device number if the drive is
-            // removable or (fixed AND on the usb bus, SD, or MMC (undefined in XP/mingw))
-            if(GetDisksProperty(hDevice, pDevDesc, &deviceInfo) &&
-                    ( ((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))
-                      || ( (driveType == DRIVE_FIXED) && ((pDevDesc->BusType == BusTypeUsb)
-                      || (pDevDesc->BusType == BusTypeSd ) || (pDevDesc->BusType == BusTypeMmc )) ) ) )
-            {
-                // ensure that the drive is actually accessible
-                // multi-card hubs were reporting "removable" even when empty
-                if(DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
-                {
-                    *pid = deviceInfo.DeviceNumber;
-                    retVal = true;
-                }
-                else
-                    // IOCTL_STORAGE_CHECK_VERIFY2 fails on some devices under XP/Vista, try the other (slower) method, just in case.
-                {
-                    CloseHandle(hDevice);
-                    hDevice = CreateFile(nameNoSlash.c_str(), FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-                    if(DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED) NULL))
-                    {
-                        *pid = deviceInfo.DeviceNumber;
-                        retVal = true;
-                    }
-                }
-            }
+			if (GetDisksProperty(hDevice, pDevDesc, &deviceInfo))
+			{
+
+				// get the device number if the drive is
+				// removable or (fixed AND on the usb bus, SD, or MMC (undefined in XP/mingw))
+				if (
+					(((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))
+					|| ((driveType == DRIVE_FIXED) && ((pDevDesc->BusType == BusTypeUsb)
+					|| (pDevDesc->BusType == BusTypeSd) || (pDevDesc->BusType == BusTypeMmc)))))
+				{
+					// ensure that the drive is actually accessible
+					// multi-card hubs were reporting "removable" even when empty
+					if (DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY2, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED)NULL))
+					{
+						*pid = deviceInfo.DeviceNumber;
+						retVal = true;
+					}
+					else
+						// IOCTL_STORAGE_CHECK_VERIFY2 fails on some devices under XP/Vista, try the other (slower) method, just in case.
+					{
+						CloseHandle(hDevice);
+						hDevice = CreateFile(nameNoSlash.c_str(), FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+						if (DeviceIoControl(hDevice, IOCTL_STORAGE_CHECK_VERIFY, NULL, 0, NULL, 0, &cbBytesReturned, (LPOVERLAPPED)NULL))
+						{
+							*pid = deviceInfo.DeviceNumber;
+							retVal = true;
+						}
+					}
+				}
+
+			}
 
             delete[] pDevDesc;
             CloseHandle(hDevice);
