@@ -190,9 +190,8 @@ int wmain(int argc, wchar_t *argv[]) {
 	CDeviceInfo devinfo;
 	std::vector<std::pair<wchar_t, ULONG>> v;
 
-	devinfo.getLogicalDrives(&v);
-
 	try {
+		devinfo.getLogicalDrives(&v);
 
 		std::wstring driveletter, filename;
 		if (argc == 3) {

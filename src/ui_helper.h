@@ -15,6 +15,7 @@
 class CUIHelper {
 public:
 	static void critical(const wchar_t *message);
+	static void critical(const char *message);
 	static void criticalWithCurrentError(const wchar_t *title, const wchar_t *message);
 	static void criticalWithCurrentError(const wchar_t *title, const std::wstring message);
 };

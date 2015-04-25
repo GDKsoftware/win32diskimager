@@ -11,6 +11,12 @@ void CUIHelper::critical(const wchar_t *message) {
 #endif
 }
 
+void CUIHelper::critical(const char *message) {
+#ifdef _CONSOLE
+	std::cerr << message;
+#endif
+}
+
 void CUIHelper::criticalWithCurrentError(const wchar_t *title, const wchar_t *message) {
 #ifdef _CONSOLE
 	wchar_t *errormessage = NULL;
