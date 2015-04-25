@@ -210,7 +210,6 @@ int wmain(int argc, wchar_t *argv[]) {
 				}
 			}
 
-			// test
 			if (found) {
 				writer.WriteImageToDisk(filename, disk, volume);
 			}
