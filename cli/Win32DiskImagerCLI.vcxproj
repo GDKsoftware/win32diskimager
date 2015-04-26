@@ -79,11 +79,13 @@
     <ClCompile Include="..\src\cli_main.cpp" />
     <ClCompile Include="..\src\deviceinfo.cpp" />
     <ClCompile Include="..\src\disk.cpp" />
+    <ClCompile Include="..\src\diskwriter.cpp" />
     <ClCompile Include="..\src\ui_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\deviceinfo.h" />
     <ClInclude Include="..\src\disk.h" />
+    <ClInclude Include="..\src\diskwriter.h" />
     <ClInclude Include="..\src\ui_helper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
