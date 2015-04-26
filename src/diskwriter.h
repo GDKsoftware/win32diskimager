@@ -1,5 +1,5 @@
 
-#include <Windows.h>
+#include <windows.h>
 #include <string>
 
 class CProgressBar {

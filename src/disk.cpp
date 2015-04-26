@@ -23,14 +23,14 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
+#include <string>
 #include <windows.h>
 #include <winioctl.h>
 #include "disk.h"
 
 #include "ui_helper.h"
 
-#include <string>
+
 
 HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access)
 {
@@ -282,6 +282,14 @@ BOOL GetDisksProperty(HANDLE hDevice, PSTORAGE_DEVICE_DESCRIPTOR pDevDesc,
     return(retVal);
 }
 
+// for some reason my MingW compilter/toolchain doesn't know how to resolve these? easier to just do this than trying to figure out what's wrong
+typedef enum _StorageType {
+	SBusTypeUsb = 0x07,
+	SBusTypeSata = 0x0B,
+	SBusTypeSd = 0x0C,
+	SBusTypeMmc = 0x0D
+} StorageType;
+
 bool checkDriveType(const std::wstring name, ULONG *pid)
 {
     HANDLE hDevice;
@@ -320,13 +328,12 @@ bool checkDriveType(const std::wstring name, ULONG *pid)
 
 			if (GetDisksProperty(hDevice, pDevDesc, &deviceInfo))
 			{
-
 				// get the device number if the drive is
 				// removable or (fixed AND on the usb bus, SD, or MMC (undefined in XP/mingw))
 				if (
-					(((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != BusTypeSata))
-					|| ((driveType == DRIVE_FIXED) && ((pDevDesc->BusType == BusTypeUsb)
-					|| (pDevDesc->BusType == BusTypeSd) || (pDevDesc->BusType == BusTypeMmc)))))
+					(((driveType == DRIVE_REMOVABLE) && (pDevDesc->BusType != SBusTypeSata))
+					|| ((driveType == DRIVE_FIXED) && ((pDevDesc->BusType == SBusTypeUsb)
+					|| (pDevDesc->BusType == SBusTypeSd) || (pDevDesc->BusType == SBusTypeMmc)))))
 				{
 					// ensure that the drive is actually accessible
 					// multi-card hubs were reporting "removable" even when empty

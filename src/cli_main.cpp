@@ -6,6 +6,33 @@
 #include <iostream>
 #include <locale>
 
+// http://stackoverflow.com/questions/13871617/winmain-and-main-in-c-extended
+
+extern int wmain(int, wchar_t**);
+
+#include <windows.h>    // GetCommandLine, CommandLineToArgvW, LocalFree
+
+int main()
+{
+	struct Args
+	{
+		int n;
+		wchar_t** p;
+
+		~Args() { if (p != 0) { ::LocalFree(p); } }
+		Args() : p(::CommandLineToArgvW(::GetCommandLine(), &n)) {}
+	};
+
+	Args    args;
+
+	if (args.p == 0)
+	{
+		return EXIT_FAILURE;
+	}
+	return wmain(args.n, args.p);
+}
+
+
 int wmain(int argc, wchar_t *argv[]) {
 	std::locale::global(std::locale(""));
 

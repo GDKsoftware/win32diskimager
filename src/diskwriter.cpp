@@ -1,6 +1,8 @@
 
 #include "diskwriter.h"
+#include <winioctl.h>
 #include "disk.h"
+#include <string>
 
 void CProgressBar::setRange(INT64 iPos, INT64 iMax) {
 	Max = iMax;
@@ -56,7 +58,9 @@ bool CDiskWriter::FileExists(const std::wstring sFilename) {
 
 bool CDiskWriter::WriteImageToDisk(const std::wstring sFilename, int iDeviceID, int iVolumeID) {
 	if (!this->FileExists(sFilename)) {
-		throw new std::exception("File not found");
+		status = STATUS_IDLE;
+		CUIHelper::critical(L"File doesn't exist");
+		return false;
 	}
 
 	status = STATUS_WRITING;
