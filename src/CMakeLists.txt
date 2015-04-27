@@ -14,10 +14,24 @@ set(cli_SOURCES
 	ui_helper.cpp
 	cli_main.cpp)
 
-set(cli_HEADERS
-	disk.h
-	deviceinfo.h
-	diskwriter.h
-	ui_helper.h)
-
 add_executable(win32diskimager ${cli_SOURCES})
+
+
+remove_definitions(-DCONSOLE -D_CONSOLE)
+add_definitions(-DWIN)
+add_definitions(-DWIN32)
+add_definitions(-D_WINDOWS)
+add_definitions(-D_WINDLL)
+add_definitions(-D_USRDLL)
+add_definitions(-DWIN32DISKIMAGERDLL_EXPORTS)
+
+set(dll_SOURCES
+	disk.cpp
+	deviceinfo.cpp
+	diskwriter.cpp
+	ui_helper.cpp
+	Win32DiskImagerDLL.cpp
+	dll_main.cpp)
+
+SET (LIB_TYPE SHARED)
+add_library(win32diskimagerdll ${LIB_TYPE} ${dll_SOURCES})

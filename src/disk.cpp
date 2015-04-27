@@ -30,8 +30,6 @@
 
 #include "ui_helper.h"
 
-
-
 HANDLE getHandleOnFile(LPCWSTR filelocation, DWORD access)
 {
     HANDLE hFile;
