@@ -25,7 +25,7 @@ wchar_t * __stdcall DiskImager_GetError() {
 	lasterrormsg = new wchar_t[errormsg.length() + 1];
 	lasterrormsg[errormsg.length()] = 0x00;
 
-	memcpy(lasterrormsg, errormsg.c_str(), errormsg.length());
+	memcpy(lasterrormsg, errormsg.c_str(), errormsg.length() * sizeof(wchar_t));
 
 	return lasterrormsg;
 }

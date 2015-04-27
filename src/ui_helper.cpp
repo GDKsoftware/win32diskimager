@@ -46,7 +46,7 @@ std::wstring string2wstring(std::string s) {
 	unsigned int iNewLen = strlength * sizeof(wchar_t);
 	wchar_t *newstr = static_cast<wchar_t *>(malloc(iNewLen + 4));
 	convertedChars = mbstowcs(newstr, s.c_str(), strlength);
-	returnstr = newstr;
+	returnstr.append(newstr);
 	free(newstr);
 
 	return returnstr;
@@ -69,6 +69,8 @@ void CUIHelper::criticalWithCurrentError(const wchar_t *title, const wchar_t *me
 	std::wcerr << title << L" - " << message << std::endl
 		<< L"Error " << std::to_wstring((int)GetLastError()).c_str() << L": " << errormessage;
 #else
+	std::wstring errmsg = errormessage;
+
 	std::wstring s = title;
 	s.append(L" - ");
 	s.append(message);
@@ -76,9 +78,9 @@ void CUIHelper::criticalWithCurrentError(const wchar_t *title, const wchar_t *me
 	s.append(L"Error ");
 	s.append(std::to_wstring((int)GetLastError()));
 	s.append(L": ");
-	s.append(errormessage);
+	s.append(errmsg);
 
-	helperinstance.pushErrorMessage(message);
+	helperinstance.pushErrorMessage(s);
 #endif
 
 	delete errormessage;
