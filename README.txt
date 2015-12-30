@@ -1,3 +1,10 @@
+
+This fork contains changes and added code for a DLL and a CLI version of the project.
+
+* (The DLL API)[https://github.com/GDKsoftware/win32diskimager/blob/master/src/Win32DiskImagerDLL.h]
+
+=
+
 Image Writer for Microsoft Windows
 Release 0.9.5 - Unnamed Edition 2: The oddly released sequel
 ======
