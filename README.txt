@@ -1,7 +1,7 @@
 
 This fork contains changes and added code for a DLL and a CLI version of the project.
 
-* (The DLL API)[https://github.com/GDKsoftware/win32diskimager/blob/master/src/Win32DiskImagerDLL.h]
+* [The DLL API](https://github.com/GDKsoftware/win32diskimager/blob/master/src/Win32DiskImagerDLL.h)
 
 =
 
